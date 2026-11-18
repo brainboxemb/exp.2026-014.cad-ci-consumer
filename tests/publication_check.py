@@ -38,22 +38,47 @@ def git(*args: str) -> str:
     ).strip()
 
 
+def source_event() -> tuple[str, str, str, int]:
+    """Return event name, exact source SHA/ref and PR number from Actions data."""
+
+    event_name = os.environ["GITHUB_EVENT_NAME"]
+    event_path = Path(os.environ["GITHUB_EVENT_PATH"])
+    event = json.loads(event_path.read_text(encoding="utf-8"))
+
+    if event_name == "pull_request":
+        pull_request = event["pull_request"]
+        return (
+            event_name,
+            pull_request["head"]["sha"],
+            pull_request["head"]["ref"],
+            int(event["number"]),
+        )
+    return (
+        event_name,
+        os.environ["GITHUB_SHA"],
+        os.environ["GITHUB_REF_NAME"],
+        0,
+    )
+
+
 def main() -> int:
     """Publish PR or main output and verify the exact generated branch paths."""
 
-    source_sha = os.environ["SOURCE_SHA"]
-    source_ref = os.environ["SOURCE_REF"]
-    event_name = os.environ["EVENT_NAME"]
-    pull_request = int(os.environ.get("PR_NUMBER", "0") or "0")
+    event_name, source_sha, source_ref, pull_request = source_event()
+
+    # The candidate must be built from the same commit that freshness checks
+    # protect. The workflow checks out the PR head explicitly for this reason.
+    actual_checkout = git("rev-parse", "HEAD")
+    if actual_checkout != source_sha:
+        raise RuntimeError(
+            f"checkout/source mismatch: expected {source_sha}, found {actual_checkout}"
+        )
 
     out = ROOT / "output"
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
 
     if event_name == "pull_request":
-        if pull_request <= 0:
-            raise RuntimeError("pull_request event requires PR_NUMBER")
-
         overlay = out / "pr"
         run(
             "build",

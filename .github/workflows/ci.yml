@@ -13,8 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        if: github.event_name == 'pull_request'
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+        with:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
@@ -23,8 +28,3 @@ jobs:
       - run: python -m pip install -e ext/cad-ci
       - run: python tests/consumer_check.py
       - run: python tests/publication_check.py
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          SOURCE_REF: ${{ github.head_ref || github.ref_name }}
-          PR_NUMBER: ${{ github.event.pull_request.number || 0 }}
