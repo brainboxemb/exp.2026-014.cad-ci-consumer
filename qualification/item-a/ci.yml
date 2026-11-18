@@ -14,3 +14,6 @@ steps:
   - id: verify
     run: [python, verify.py]
     outputs: [verified.txt]
+  - id: package
+    run: [python, package.py]
+    outputs: [results]

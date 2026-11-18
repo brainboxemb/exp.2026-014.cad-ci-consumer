@@ -51,3 +51,10 @@ gh-pages/
 ```
 
 The test reads those generated branches back after publication and verifies the stored item state and `provenance.json`.
+
+## Directory output proof
+
+`qualification/item-a` has a final `package` step that declares the complete
+`results/` directory as its output. CI changes a nested file after a successful
+run and verifies that `tool.cad.ci` reruns only `package`; earlier current
+steps are reused.
