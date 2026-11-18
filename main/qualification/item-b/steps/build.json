@@ -1,0 +1,11 @@
+{
+  "duration_seconds": 0.021,
+  "exit_code": 0,
+  "input_fingerprint": "e6a500dddb26341a9d04af9aa2e7a5d97ba6ea5e337c7576480fbecc8adaf9b0",
+  "outputs": {
+    "built.txt": "4f72169346e686ed784ebfbde6fedc339c5b0cdc1fb73d318a83f8f984be332e"
+  },
+  "result_fingerprint": "67a01d4ddf04fb7afb983c18bbcf375b4ef3dc9ac4906f1af381e7c1dc55c7a3",
+  "status": "pass",
+  "step": "build"
+}
