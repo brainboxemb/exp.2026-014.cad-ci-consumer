@@ -49,7 +49,12 @@ def main() -> int:
         "qualification-item-a",
     )
 
+    # Running one item still checks its dependency chain. Those dependencies
+    # are current, so they must be reused while only the tampered package step
+    # runs again.
     expected = [
+        "library-tests:test\treused",
+        "integration-example-a:run-example\treused",
         "qualification-item-a:build\treused",
         "qualification-item-a:verify\treused",
         "qualification-item-a:package\tran",
