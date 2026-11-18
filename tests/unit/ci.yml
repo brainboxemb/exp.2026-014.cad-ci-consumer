@@ -1,0 +1,12 @@
+id: library-tests
+kind: library-test
+watch:
+  - src/**
+  - tests/unit/**
+strategy:
+  affected: changed
+  reuse: true
+steps:
+  - id: test
+    run: [python, run.py]
+    outputs: [unit.txt]
