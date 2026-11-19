@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@e09e86b42ee42c3171b30d031dbb84b939635ad4
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@5e0567346da9136b2a91d7f8b375e653f923354b
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
@@ -84,6 +84,27 @@ jobs:
           python-version: '3.12'
       - name: Bootstrap exact released tool
         run: python scripts/bootstrap.py
+      - name: Verify released workflow has no persistent cache transport
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          workflow = Path("ext/cad-ci/.github/workflows/reusable-run.yml").read_text(
+              encoding="utf-8"
+          )
+          forbidden = (
+              "actions/cache/restore",
+              "actions/cache/save",
+              "cache-primary-key",
+              "restore-keys:",
+          )
+          found = [value for value in forbidden if value in workflow]
+          if found:
+              raise SystemExit(
+                  "released reusable workflow still contains persistent cache "
+                  "transport: " + ", ".join(found)
+              )
+          PY
       - name: Install exact released tool stack
         run: python -m pip install -e ext/cad-ci
       - name: Simple item
