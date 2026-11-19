@@ -1,1 +1,1 @@
-item-a-v1|integration:unit:core-v1
+item-a-v2|integration:unit:core-v1

@@ -1,11 +1,11 @@
 {
-  "duration_seconds": 0.019,
+  "duration_seconds": 0.016,
   "exit_code": 0,
-  "input_fingerprint": "9275eaa011d0aed76cd0177e7bafda837dd3d916ebcb143115b825edfa15eeb9",
+  "input_fingerprint": "695e2e1f2b879579f76e2117f6c5c6642c5968707c62de134c7b406a7d462f08",
   "outputs": {
-    "built.txt": "a78fb44d35a7d18a5707e407fc3e7281f66e8bc89cb6ec357ca0023552fa13c7"
+    "built.txt": "2d9535ffcae1daa053970dc1cf18eb003839e646213a6a9c8d0b35822a55f03f"
   },
-  "result_fingerprint": "70b8c99db2c3795a1f4265626d5ce36b780a4b97ec923a34a32efbadbf1ceed2",
+  "result_fingerprint": "5491d7ece1a358e5c1784be4f4b36d38f7729ae72b97b46d5a3700de7023bd32",
   "status": "pass",
   "step": "build"
 }

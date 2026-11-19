@@ -1,11 +1,11 @@
 {
-  "duration_seconds": 0.019,
+  "duration_seconds": 0.016,
   "exit_code": 0,
-  "input_fingerprint": "472293336744c5d4ed36de0efdbc20044ea024bdd422fe7940f649094c2a9b18",
+  "input_fingerprint": "7a70ff6fa70829654aaf175183611145bb414632bdc5885699cc734897dc9600",
   "outputs": {
     "verified.txt": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2"
   },
-  "result_fingerprint": "8aae3a4fa5abe871d5d0d7f000d4238bee358b6983e02de5a9bc268904973df9",
+  "result_fingerprint": "a73bd91ade78c807e1c609cabcf55e1baf5d96ae2c4bb5b231afa46a95c0aafc",
   "status": "pass",
   "step": "verify"
 }
