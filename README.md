@@ -1,101 +1,71 @@
 # tool.cad.ci.test
 
-Permanent end-to-end acceptance tests for the released `lib.py.cad.ci` +
-`tool.cad.ci` stack.
+Permanent black-box acceptance repository for the released generic CAD CI stack.
 
-This repository contains no SolidCraft, Forge or real CAD behaviour. It builds
-small representative consumer repositories that prove the generic CI contract
-before Forge or CAD is allowed to migrate to a new release.
+This repository currently pins:
 
-`dependencies.repos` pins one exact `tool.cad.ci` commit.
-`scripts/bootstrap.py` checks that revision out under `ext/cad-ci`. Local
-runs and GitHub Actions use that same checkout.
+- `tool.cad.ci` **0.4.0** at
+  `f43e13d7e1547e4caef9827848bace4744d30e17`;
+- that tool pins `lib.py.cad.ci` **0.3.0** at
+  `155ec24915e7b2d1b9f5306db9df84a50b53dba8`.
 
-## Test cases
+No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
+a small independent consumer repository that exercises the released tool from
+the outside.
 
-The repository is moving to independent top-level cases:
+## Cases
 
 ```text
 simple_case1/
 more_complex_case2/
 dependency_case/
 partial_rerun_case/
-publish_case/
+directory_output_case/
 timeout_case/
-external_error_case/
+publish_case/
 ```
 
-Each case owns its own small `cad-ci.yml` and item tree. A case should prove
-one coherent part of the CI contract so a failure immediately points at the
-broken behaviour.
+`simple_case1` proves cold build, unchanged CURRENT results, verify-only
+invalidation and step-input membership changes.
 
-### simple_case1
+`more_complex_case2` proves coarse Git changed-item selection separately from
+SCons target freshness.
 
-Proves:
-- one item with ordered steps;
-- declared output;
-- successful complete run;
-- second unchanged run reuses the result.
+`dependency_case` proves cumulative dependency output, fan-out and
+`affected: direct` summary behaviour.
 
-### more_complex_case2
+`partial_rerun_case` proves the released meanings of exact `--step`,
+`--until` and `--from`, including complete-item evidence after partial runs.
 
-Proves:
-- several items;
-- multiple steps;
-- changed-file selection;
-- only affected work runs.
+`directory_output_case` proves complete directory output, empty directories,
+local repair and fresh-runner CacheDir restore.
 
-### dependency_case
+`timeout_case` distinguishes repository-default timeout, per-step timeout
+override and ordinary command failure.
 
-Proves:
-- dependency ordering;
-- dependency changes select dependants;
-- direct-only fan-in does not widen ordinary changes;
-- explicit fan-in selection expands its dependencies.
+`publish_case` proves complete main output, sparse PR output, resolved views,
+real generated `build` branch publication, Pages stable/preview publication
+and source/build provenance.
 
-### partial_rerun_case
+## How it runs
 
-Proves:
-- exact `--step`;
-- `--from`;
-- `--until`;
-- stale earlier state is rejected;
-- partial runs do not write complete item state.
+`dependencies.repos` stores one exact tool commit.
+`scripts/bootstrap.py` checks that commit out under `ext/cad-ci`.
+The workflow installs that checkout and then executes every case's `check.py`.
 
-### publish_case
+Most cases copy their immutable template to `output/cases/<name>` before
+mutating inputs. The publication case runs against its own source tree because
+it also verifies the real GitHub event source SHA and generated branches.
 
-Proves:
-- complete `build/main`;
-- sparse `build/pr/<number>`;
-- PR overlay resolution;
-- main update of selected paths only;
-- stable Pages plus PR preview;
-- one-PR cleanup;
-- stale-source refusal;
-- retry of an actual generated-branch race.
+## Boundary
 
-### timeout_case
+If a case exposes missing generic behaviour, the implementation belongs in
+`lib.py.cad.ci` first, followed by a released `tool.cad.ci`. Do not patch
+around missing generic behaviour in this repository.
 
-Proves:
-- repository default timeout;
-- step override;
-- actual process termination;
-- timeout stored separately from command exit failure;
-- timed-out output is never reusable.
+External package/image lookup is not a public `tool.cad.ci 0.4.0` command.
+The Forge GHCR image-existence problem is therefore not implemented or faked in
+this acceptance repository.
 
-### external_error_case
-
-Proves:
-- external resource present;
-- external resource explicitly absent;
-- lookup/auth/network failure;
-- only explicit absence may trigger creation;
-- lookup errors and timeouts are never treated as "missing".
-
-## Rules
-
-- Cases stay small and readable.
-- Cases do not contain domain behaviour.
-- Generic implementation is never developed here.
-- This repository consumes one exact released/pinned tool revision.
-- Forge and CAD migrate only after all required cases pass.
+Forge and CAD may update their tool pin only after this exact released stack is
+green here.
