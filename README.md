@@ -4,8 +4,8 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.6.0** at
-  `fac7f138dc429b5236ea79871bbb96a054e2c7d3`;
+- `tool.cad.ci` **0.6.1** at
+  `b9a2f62c482ce85e07044fac21786ea4ea771ff2`;
 - that tool pins `lib.py.cad.ci` **0.3.0** at
   `155ec24915e7b2d1b9f5306db9df84a50b53dba8`.
 
