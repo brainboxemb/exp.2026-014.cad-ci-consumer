@@ -85,3 +85,19 @@ Use short literal engineering language and explanatory docstrings/comments for
 non-obvious checks.
 
 One logical acceptance update uses one issue, one branch and one pull request.
+
+## Repository plan source of truth
+
+`docs/plan.md` is the current source of truth for unfinished repository work.
+
+Keep it as a current snapshot:
+
+- state the current goal and execution order;
+- include every open issue in an issue assessment snapshot;
+- give each open issue an explicit status such as `now`, `later`, `blocked`, `probably obsolete`, or `effectively complete but still open`;
+- explain briefly why that status applies;
+- identify dependencies or blockers between issues;
+- keep the issue assessment current when issues are opened, closed, merged or superseded.
+
+Issues contain detail and history. README and design/requirements documents describe stable purpose and behavior. The plan tells an agent what work is actually current and what should happen next.
+
