@@ -86,6 +86,13 @@ def main() -> int:
         "final-summary",
     ], summary
 
+    summary_source = (
+        ROOT / "qualification/summary/run.py"
+    ).read_text(encoding="utf-8")
+    assert "item.json" not in summary_source
+    assert "build/qualification" not in summary_source
+    assert "current_context" in summary_source
+
     # A full run includes every item and produces the final summary.
     first = run("run", "--repo", ".")
     assert "qualification-item-a:verify\tran" in first
