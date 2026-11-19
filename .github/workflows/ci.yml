@@ -9,81 +9,67 @@ permissions:
   contents: write
 
 jobs:
-  reusable-plan:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@b9a2f62c482ce85e07044fac21786ea4ea771ff2
-    with:
-      full_run: true
-
-  verify-reusable-plan:
-    needs: reusable-plan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check plan returned by called workflow
-        env:
-          PLAN_JSON: ${{ needs.reusable-plan.outputs.plan_json }}
-        run: |
-          python - <<'PY'
-          import json
-          import os
-
-          rows = json.loads(os.environ["PLAN_JSON"])
-          ids = [row["id"] for row in rows]
-          if ids != ["workflow-case"]:
-              raise SystemExit(f"unexpected reusable plan: {ids}")
-          PY
-
-  reusable-ci:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@b9a2f62c482ce85e07044fac21786ea4ea771ff2
+  consumer:
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@ce1c82a11829b0ce2664d10f526e64132dc71c5f
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
       upload_build: true
-      build_artifact_name: cad-ci-workflow-case
+      build_artifact_name: cad-ci-workflow-acceptance
 
-  verify-build-artifact:
-    needs: reusable-ci
+  test:
+    needs: consumer
     runs-on: ubuntu-latest
     steps:
-      - name: Download handed-off build output
+      - name: Download reusable workflow build
         uses: actions/download-artifact@v4
         with:
-          name: ${{ needs.reusable-ci.outputs.build_artifact_name }}
-          path: output/reusable-build
+          name: ${{ needs.consumer.outputs.build_artifact_name }}
+          path: output/workflow-artifact
 
-      - name: Check build output and hidden CAD-CI evidence
+      - name: Verify reusable workflow output and evidence
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
 
-          root = Path("output/reusable-build")
+          root = Path("output/workflow-artifact")
           result = root / "workflow_case" / "result.txt"
-          evidence = root / "workflow_case" / ".cad-ci" / "item.json"
+          item_evidence = root / "workflow_case" / ".cad-ci" / "item.json"
+          step_evidence = (
+              root
+              / "workflow_case"
+              / ".cad-ci"
+              / "steps"
+              / "verify_environment.json"
+          )
 
           if not result.is_file():
               raise SystemExit(f"missing handed-off output: {result}")
           if "reusable workflow executed caller item" not in result.read_text():
               raise SystemExit("handed-off result is not the caller workflow case")
 
-          if not evidence.is_file():
-              raise SystemExit(f"missing hidden CAD-CI evidence: {evidence}")
-          state = json.loads(evidence.read_text())
-          if state.get("status") != "pass":
-              raise SystemExit(f"handed-off item evidence is not passing: {state}")
+          if not item_evidence.is_file():
+              raise SystemExit(f"missing item evidence: {item_evidence}")
+          item = json.loads(item_evidence.read_text())
+          if item.get("status") != "pass":
+              raise SystemExit(f"item evidence is not passing: {item}")
 
-          leaked = list(root.rglob(".cache"))
-          if leaked:
-              raise SystemExit(f"private cache leaked into build artifact: {leaked}")
+          if not step_evidence.is_file():
+              raise SystemExit(f"missing step evidence: {step_evidence}")
+          step = json.loads(step_evidence.read_text())
+          if step.get("schema") != 2:
+              raise SystemExit(f"unexpected step evidence schema: {step}")
+          if step.get("output_state") not in {"UNCHANGED", "RESTORED", "REPAIRED"}:
+              raise SystemExit(f"missing public output_state: {step}")
+          obsolete_term = "material" + "ization"
+          if obsolete_term in json.dumps(step):
+              raise SystemExit(f"obsolete output term leaked into evidence: {step}")
+
+          if list(root.rglob(".cache")):
+              raise SystemExit("private CAD-CI cache leaked into build artifact")
           PY
 
-  test:
-    needs:
-      - reusable-plan
-      - verify-reusable-plan
-      - reusable-ci
-      - verify-build-artifact
-    runs-on: ubuntu-latest
-    steps:
       - uses: actions/checkout@v4
         if: github.event_name == 'pull_request'
         with:

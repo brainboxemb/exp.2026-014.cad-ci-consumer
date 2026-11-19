@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.6.1** at
-  `b9a2f62c482ce85e07044fac21786ea4ea771ff2`;
-- that tool pins `lib.py.cad.ci` **0.3.0** at
-  `155ec24915e7b2d1b9f5306db9df84a50b53dba8`.
+- `tool.cad.ci` **0.7.0** at
+  `ce1c82a11829b0ce2664d10f526e64132dc71c5f`;
+- that tool pins `lib.py.cad.ci` **0.4.0** at
+  `73985ca9638bf7a5e3209bfd1d3896d043193bb2`.
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
@@ -47,19 +47,20 @@ override and ordinary command failure.
 real generated `build` branch publication, Pages stable/preview publication
 and source/build provenance.
 
-`workflow_case` is the root consumer used by GitHub itself. It proves the released
-cross-repository plan workflow and the high-level reusable CI workflow. The
-consumer command fails unless the declared non-secret environment reaches it;
-the downstream acceptance job also downloads the handed-off build artifact and
-checks both `result.txt` and hidden `.cad-ci/item.json` evidence.
+`workflow_case` is the root consumer used by GitHub itself. It proves the
+released high-level `reusable-ci.yml` workflow from another repository. The
+consumer command fails unless the declared non-secret environment reaches it.
+The downstream acceptance job also verifies generated output, item evidence and
+step evidence with public `output_state` terminology.
 
 ## How it runs
 
 `dependencies.repos` stores one exact tool commit for the CLI acceptance cases.
 `scripts/bootstrap.py` checks that commit out under `ext/cad-ci`.
-The same workflow calls `reusable-plan.yml` and the high-level `reusable-ci.yml`
-directly from that exact released commit. The high-level call uploads its
-materialized `build/` tree for a downstream acceptance job.
+The workflow calls only the high-level `reusable-ci.yml` from that exact
+released commit. The high-level call uploads its generated `build/` tree for a
+downstream acceptance job; the consumer does not rebuild generic plan/run/cache
+orchestration locally.
 
 Most cases copy their immutable template to `output/cases/<name>` before
 mutating inputs. The publication case runs against its own source tree because
