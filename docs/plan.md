@@ -6,30 +6,26 @@ This file is the current source of truth for unfinished work in
 The repository externally tests one exact released `tool.cad.ci` stack. It
 must not contain generic CAD-CI implementation.
 
-## Current status
-
-The repository is updating to released `tool.cad.ci` 0.8.0 at
-`5e0567346da9136b2a91d7f8b375e653f923354b`.
-
 ## Current goal
 
-Externally prove the exact 0.8.0 release, including the new contract that the
-released reusable workflow does not create persistent GitHub Actions cache
-transport.
+Complete #28: externally test released `tool.cad.ci` 0.9.0 at exact commit
+`c2db9e6b6553052df12d2498e9436ba7be056fe6`, including root
+`cad-ci.yml:variables`.
 
-## Next execution order
+## Execution order
 
-1. Pin exact 0.8.0 commit in `dependencies.repos` and the reusable workflow.
-2. Inspect the released `reusable-run.yml` and reject persistent cache actions.
-3. Run the complete existing acceptance suite.
-4. Merge only after green acceptance.
-5. Only after green `main` may Forge/CAD adopt 0.8.0.
+1. Pin exact tool 0.9.0 in direct bootstrap and reusable workflow use.
+2. Make the existing workflow case declare a repository variable with the same
+   name as a caller environment value.
+3. Prove the repository value reaches the consumer command and wins.
+4. Run the complete existing external test suite.
+5. Merge only after green PR CI.
+6. Only after green main may Forge/CAD adopt this tool release.
 
 ## Open issue assessment — 2026-11-19
 
 | Issue | Status | Assessment |
 | --- | --- | --- |
-| #26 Externally accept tool.cad.ci 0.8.0 without workflow cache side effects | now | Active acceptance. Prove the exact released 0.8.0 workflow and complete external suite before consumer adoption. |
+| #28 Externally test tool.cad.ci 0.9.0 repository variables | now | Active update. Prove the exact released stack and full suite before consumer adoption. |
 
-Do not invent work here merely because another repository is changing. New work
-belongs here only when it tests a released public `tool.cad.ci` contract.
+No other open repository issues exist at this point in time.
