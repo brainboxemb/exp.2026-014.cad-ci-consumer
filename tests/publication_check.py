@@ -38,8 +38,8 @@ def git(*args: str) -> str:
     ).strip()
 
 
-def source_event() -> tuple[str, str, str, int]:
-    """Return event name, exact source SHA/ref and PR number from Actions data."""
+def source_event() -> tuple[str, str, str, str, int]:
+    """Return event name, base/source SHAs, source ref and PR number."""
 
     event_name = os.environ["GITHUB_EVENT_NAME"]
     event_path = Path(os.environ["GITHUB_EVENT_PATH"])
@@ -49,12 +49,14 @@ def source_event() -> tuple[str, str, str, int]:
         pull_request = event["pull_request"]
         return (
             event_name,
+            pull_request["base"]["sha"],
             pull_request["head"]["sha"],
             pull_request["head"]["ref"],
             int(event["number"]),
         )
     return (
         event_name,
+        "",
         os.environ["GITHUB_SHA"],
         os.environ["GITHUB_REF_NAME"],
         0,
@@ -64,7 +66,7 @@ def source_event() -> tuple[str, str, str, int]:
 def main() -> int:
     """Publish PR or main output and verify the exact generated branch paths."""
 
-    event_name, source_sha, source_ref, pull_request = source_event()
+    event_name, base_sha, source_sha, source_ref, pull_request = source_event()
 
     # The candidate must be built from the same commit that freshness checks
     # protect. The workflow checks out the PR head explicitly for this reason.
@@ -93,8 +95,10 @@ def main() -> int:
             source_sha,
             "--pull-request",
             str(pull_request),
-            "--items",
-            "qualification-item-a",
+            "--base",
+            base_sha,
+            "--head",
+            source_sha,
         )
         build_commit = run(
             "publish",
