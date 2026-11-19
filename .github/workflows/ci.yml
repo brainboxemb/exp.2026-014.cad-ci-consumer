@@ -29,8 +29,27 @@ jobs:
 
       - name: Verify reusable workflow caller output
         run: |
-          test -f output/workflow-artifact/workflow_case/result.txt
-          test -f output/workflow-artifact/workflow_case/.cad-ci/item.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("output/workflow-artifact")
+          result = root / "workflow_case" / "result.txt"
+          evidence = root / "workflow_case" / ".cad-ci" / "item.json"
+
+          if not result.is_file():
+              raise SystemExit(f"missing handed-off output: {result}")
+          if "reusable workflow executed caller item" not in result.read_text():
+              raise SystemExit("handed-off result is not the caller workflow case")
+          if not evidence.is_file():
+              raise SystemExit(f"missing hidden CAD-CI evidence: {evidence}")
+
+          state = json.loads(evidence.read_text())
+          if state.get("status") != "pass":
+              raise SystemExit(f"handed-off item evidence is not passing: {state}")
+          if list(root.rglob(".cache")):
+              raise SystemExit("private CAD-CI cache leaked into build artifact")
+          PY
 
       - uses: actions/checkout@v4
         if: github.event_name == 'pull_request'
