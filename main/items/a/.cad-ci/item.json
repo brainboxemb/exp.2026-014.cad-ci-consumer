@@ -3,7 +3,7 @@
   "engine_schema": 1,
   "final_bundle_sha256": "ca7375b6fa76d90f994bc0f3a1d14858cd8f602f8d4963ce817aef19e111393a",
   "final_step": "build",
-  "final_target_spec_digest": "1c7438fb422bbbb7d63ca96621f88c08bd9eba30cd85e6a6fc817a0f3b544588",
+  "final_target_spec_digest": "703ebb52818e32825634248acadb0e8d583451615e666de5438ca1afb6fe15d7",
   "item": "publish-a",
   "schema": 1,
   "status": "pass"

@@ -5,21 +5,21 @@
       "engine_schema": 1,
       "final_bundle_sha256": "ca7375b6fa76d90f994bc0f3a1d14858cd8f602f8d4963ce817aef19e111393a",
       "final_step": "build",
-      "final_target_spec_digest": "1c7438fb422bbbb7d63ca96621f88c08bd9eba30cd85e6a6fc817a0f3b544588",
+      "final_target_spec_digest": "703ebb52818e32825634248acadb0e8d583451615e666de5438ca1afb6fe15d7",
       "item_id": "publish-a",
-      "source_commit": "3f74cea00bba7ff800b9eb0d33e322e10c841e30"
+      "source_commit": "2bb65fc17ddabbda2ed1f00bbd0ed3d34be32187"
     },
     "items/b": {
       "engine": "scons",
       "engine_schema": 1,
       "final_bundle_sha256": "68f9899d7e6bf6efebf0c732369dc42b3e869c0a4e89fe57e237ca4cff8ff01b",
       "final_step": "build",
-      "final_target_spec_digest": "5b0d52f98aabfafea6cf73e536a08e253873692f99c14d739b9cb140f9e2dd2b",
+      "final_target_spec_digest": "717c7a6ce8e2a284f602f0e06b5c683a375a695bcbeb29c5f826c922af047e4e",
       "item_id": "publish-b",
-      "source_commit": "3f74cea00bba7ff800b9eb0d33e322e10c841e30"
+      "source_commit": "2bb65fc17ddabbda2ed1f00bbd0ed3d34be32187"
     }
   },
   "schema": 1,
   "scope": "main",
-  "source_commit": "3f74cea00bba7ff800b9eb0d33e322e10c841e30"
+  "source_commit": "2bb65fc17ddabbda2ed1f00bbd0ed3d34be32187"
 }
