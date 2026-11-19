@@ -12,8 +12,8 @@ for item_id in ("qualification-item-a", "qualification-item-b"):
     ).strip()
     lines.append(f"{item_id.removeprefix('qualification-')}:{verified}")
 
-out = context.repo / "build" / context.item.path
-(out / "summary.txt").write_text(
+context.output.mkdir(parents=True, exist_ok=True)
+(context.output / "summary.txt").write_text(
     "\n".join(lines) + "\n",
     encoding="utf-8",
 )
