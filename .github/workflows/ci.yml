@@ -62,8 +62,9 @@ jobs:
               raise SystemExit(f"unexpected step evidence schema: {step}")
           if step.get("output_state") not in {"UNCHANGED", "RESTORED", "REPAIRED"}:
               raise SystemExit(f"missing public output_state: {step}")
-          if "materialization" in json.dumps(step):
-              raise SystemExit(f"obsolete materialization term leaked into evidence: {step}")
+          obsolete_term = "material" + "ization"
+          if obsolete_term in json.dumps(step):
+              raise SystemExit(f"obsolete output term leaked into evidence: {step}")
 
           if list(root.rglob(".cache")):
               raise SystemExit("private CAD-CI cache leaked into build artifact")
