@@ -117,7 +117,16 @@ def main() -> int:
     assert lines == ["qualification-item-a:verify\tran"], lines
 
     # A partial dependency is not considered complete by a partial summary run.
+    # Partial reruns deliberately require their own dependencies to be current,
+    # so first establish the shared library/example chain.
     shutil.rmtree(ROOT / "build", ignore_errors=True)
+    run(
+        "run",
+        "--repo",
+        ".",
+        "--item",
+        "integration-example-a",
+    )
     partial = run(
         "run",
         "--repo",
