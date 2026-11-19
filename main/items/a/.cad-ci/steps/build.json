@@ -1,7 +1,7 @@
 {
   "action_executed": true,
   "bundle_sha256": "ca7375b6fa76d90f994bc0f3a1d14858cd8f602f8d4963ce817aef19e111393a",
-  "duration_seconds": 0.02,
+  "duration_seconds": 0.018,
   "engine": "scons",
   "engine_schema": 1,
   "error": null,
