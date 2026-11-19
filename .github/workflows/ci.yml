@@ -9,39 +9,29 @@ permissions:
   contents: write
 
 jobs:
-  reusable-plan:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@dd40b10b23fca266b9084f39049aa5ae1ef46db4
-    with:
-      full_run: true
-
-  verify-reusable-plan:
-    needs: reusable-plan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check plan returned by called workflow
-        env:
-          PLAN_JSON: ${{ needs.reusable-plan.outputs.plan_json }}
-        run: |
-          python - <<'PY'
-          import json
-          import os
-
-          rows = json.loads(os.environ["PLAN_JSON"])
-          ids = [row["id"] for row in rows]
-          if ids != ["workflow-case"]:
-              raise SystemExit(f"unexpected reusable plan: {ids}")
-          PY
-
-  reusable-run:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-run.yml@dd40b10b23fca266b9084f39049aa5ae1ef46db4
+  consumer:
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@fac7f138dc429b5236ea79871bbb96a054e2c7d3
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
+      upload_build: true
+      build_artifact_name: cad-ci-workflow-acceptance
 
   test:
-    needs: [reusable-plan, verify-reusable-plan, reusable-run]
+    needs: consumer
     runs-on: ubuntu-latest
     steps:
+      - name: Download reusable workflow build
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.consumer.outputs.build_artifact_name }}
+          path: output/workflow-artifact
+
+      - name: Verify reusable workflow caller output
+        run: |
+          test -f output/workflow-artifact/workflow_case/result.txt
+          test -f output/workflow-artifact/workflow_case/.cad-ci/item.json
+
       - uses: actions/checkout@v4
         if: github.event_name == 'pull_request'
         with:
