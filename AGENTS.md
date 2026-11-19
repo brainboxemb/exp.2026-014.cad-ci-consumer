@@ -71,14 +71,13 @@ tested through the released tool, not reimplemented in the case.
 
 The workflow proves both public consumption paths:
 - direct CLI cases use the exact commit in `dependencies.repos`;
-- `workflow_case` calls the reusable plan workflow and high-level reusable CI
-  workflow from the same released commit using cross-repository `uses:`
-  references, then verifies the handed-off build artifact in a downstream job.
+- `workflow_case` calls the single high-level `reusable-ci.yml` workflow from
+  that same released commit and verifies its handed-off build output/evidence.
 
-Do not copy the implementation of reusable workflows into this repository.
-The caller may inspect returned plan output and provide domain-neutral
-acceptance inputs, but generic selection/execution semantics stay in the
-released tool/library stack.
+Do not rebuild generic plan/run/cache orchestration in this repository. The
+caller may provide domain-neutral inputs and inspect generic output/evidence,
+but generic selection/execution semantics stay in the released tool/library
+stack.
 
 ## Code and language
 
