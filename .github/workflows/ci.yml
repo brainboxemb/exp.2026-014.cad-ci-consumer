@@ -9,7 +9,37 @@ permissions:
   contents: write
 
 jobs:
+  reusable-plan:
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@dd40b10b23fca266b9084f39049aa5ae1ef46db4
+    with:
+      full_run: true
+
+  verify-reusable-plan:
+    needs: reusable-plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check plan returned by called workflow
+        env:
+          PLAN_JSON: ${{ needs.reusable-plan.outputs.plan_json }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          rows = json.loads(os.environ["PLAN_JSON"])
+          ids = [row["id"] for row in rows]
+          if ids != ["workflow-case"]:
+              raise SystemExit(f"unexpected reusable plan: {ids}")
+          PY
+
+  reusable-run:
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-run.yml@dd40b10b23fca266b9084f39049aa5ae1ef46db4
+    with:
+      full_run: true
+      environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
+
   test:
+    needs: [reusable-plan, verify-reusable-plan, reusable-run]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
