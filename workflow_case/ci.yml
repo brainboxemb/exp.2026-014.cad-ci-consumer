@@ -1,0 +1,12 @@
+id: workflow-case
+kind: acceptance
+
+watch:
+  - workflow_case/**
+
+steps:
+  - id: verify_environment
+    inputs:
+      - workflow_case/check.py
+    run: [python, check.py]
+    outputs: [result.txt]
