@@ -1,4 +1,4 @@
-name: Consumer CI
+name: Acceptance
 
 on:
   pull_request:
@@ -24,9 +24,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python scripts/bootstrap.py
-      - run: python -m pip install -e ext/cad-ci
-      - run: python tests/consumer_check.py
-      - run: python tests/directory_output_check.py
-      - run: python tests/main_update_check.py
-      - run: python tests/publication_check.py
+      - name: Bootstrap exact released tool
+        run: python scripts/bootstrap.py
+      - name: Install exact released tool stack
+        run: python -m pip install -e ext/cad-ci
+      - name: Simple item
+        run: python simple_case1/check.py
+      - name: Changed-item selection
+        run: python more_complex_case2/check.py
+      - name: Dependencies and fan-out
+        run: python dependency_case/check.py
+      - name: Partial reruns
+        run: python partial_rerun_case/check.py
+      - name: Directory output and CacheDir
+        run: python directory_output_case/check.py
+      - name: Timeouts and failures
+        run: python timeout_case/check.py
+      - name: Durable build and Pages publication
+        run: python publish_case/check.py
