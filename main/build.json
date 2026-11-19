@@ -7,7 +7,7 @@
       "final_step": "build",
       "final_target_spec_digest": "1c7438fb422bbbb7d63ca96621f88c08bd9eba30cd85e6a6fc817a0f3b544588",
       "item_id": "publish-a",
-      "source_commit": "c3e75a21d2b3ffcc8d791857f91dc1b77fb7b86d"
+      "source_commit": "e132eaeb2c5a12cdcafd3765f410335d61402fce"
     },
     "items/b": {
       "engine": "scons",
@@ -16,10 +16,10 @@
       "final_step": "build",
       "final_target_spec_digest": "5b0d52f98aabfafea6cf73e536a08e253873692f99c14d739b9cb140f9e2dd2b",
       "item_id": "publish-b",
-      "source_commit": "c3e75a21d2b3ffcc8d791857f91dc1b77fb7b86d"
+      "source_commit": "e132eaeb2c5a12cdcafd3765f410335d61402fce"
     }
   },
   "schema": 1,
   "scope": "main",
-  "source_commit": "c3e75a21d2b3ffcc8d791857f91dc1b77fb7b86d"
+  "source_commit": "e132eaeb2c5a12cdcafd3765f410335d61402fce"
 }
