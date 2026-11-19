@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   reusable-plan:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@dd40b10b23fca266b9084f39049aa5ae1ef46db4
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@fac7f138dc429b5236ea79871bbb96a054e2c7d3
     with:
       full_run: true
 
@@ -32,14 +32,56 @@ jobs:
               raise SystemExit(f"unexpected reusable plan: {ids}")
           PY
 
-  reusable-run:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-run.yml@dd40b10b23fca266b9084f39049aa5ae1ef46db4
+  reusable-ci:
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@fac7f138dc429b5236ea79871bbb96a054e2c7d3
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
+      upload_build: true
+      build_artifact_name: cad-ci-workflow-case
+
+  verify-build-artifact:
+    needs: reusable-ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download handed-off build output
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.reusable-ci.outputs.build_artifact_name }}
+          path: output/reusable-build
+
+      - name: Check build output and hidden CAD-CI evidence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("output/reusable-build")
+          result = root / "workflow_case" / "result.txt"
+          evidence = root / "workflow_case" / ".cad-ci" / "item.json"
+
+          if not result.is_file():
+              raise SystemExit(f"missing handed-off output: {result}")
+          if "reusable workflow executed caller item" not in result.read_text():
+              raise SystemExit("handed-off result is not the caller workflow case")
+
+          if not evidence.is_file():
+              raise SystemExit(f"missing hidden CAD-CI evidence: {evidence}")
+          state = json.loads(evidence.read_text())
+          if state.get("status") != "pass":
+              raise SystemExit(f"handed-off item evidence is not passing: {state}")
+
+          leaked = list(root.rglob(".cache"))
+          if leaked:
+              raise SystemExit(f"private cache leaked into build artifact: {leaked}")
+          PY
 
   test:
-    needs: [reusable-plan, verify-reusable-plan, reusable-run]
+    needs:
+      - reusable-plan
+      - verify-reusable-plan
+      - reusable-ci
+      - verify-build-artifact
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
