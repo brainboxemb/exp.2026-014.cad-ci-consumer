@@ -153,13 +153,29 @@ def main() -> int:
             source_sha,
         )
 
-        git("fetch", "--quiet", "origin", "build", "gh-pages")
-        state = git(
-            "show",
-            f"origin/build:pr/{pull_request}/qualification/item-a/item.json",
+        generated = out / "generated-build"
+        fetched_build = run(
+            "build",
+            "fetch",
+            "--repo",
+            ".",
+            "--out",
+            str(generated),
         )
-        if json.loads(state).get("status") != "pass":
+        if fetched_build != build_commit:
+            raise RuntimeError(
+                f"fetched build commit {fetched_build} != published {build_commit}"
+            )
+        state = json.loads(
+            (
+                generated
+                / f"pr/{pull_request}/qualification/item-a/item.json"
+            ).read_text(encoding="utf-8")
+        )
+        if state.get("status") != "pass":
             raise RuntimeError("published PR build item is not passing")
+
+        git("fetch", "--quiet", "origin", "gh-pages")
         provenance = json.loads(
             git(
                 "show",
@@ -231,13 +247,29 @@ def main() -> int:
             source_sha,
         )
 
-        git("fetch", "--quiet", "origin", "build", "gh-pages")
-        state = git(
-            "show",
-            "origin/build:main/qualification/item-b/item.json",
+        generated = out / "generated-build"
+        fetched_build = run(
+            "build",
+            "fetch",
+            "--repo",
+            ".",
+            "--out",
+            str(generated),
         )
-        if json.loads(state).get("status") != "pass":
+        if fetched_build != build_commit:
+            raise RuntimeError(
+                f"fetched build commit {fetched_build} != published {build_commit}"
+            )
+        state = json.loads(
+            (
+                generated
+                / "main/qualification/item-b/item.json"
+            ).read_text(encoding="utf-8")
+        )
+        if state.get("status") != "pass":
             raise RuntimeError("published main build is incomplete")
+
+        git("fetch", "--quiet", "origin", "gh-pages")
         provenance = json.loads(
             git("show", "origin/gh-pages:provenance.json")
         )
