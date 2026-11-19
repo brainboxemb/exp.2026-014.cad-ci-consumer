@@ -3,11 +3,11 @@
     "qualification/item-a": {
       "input_fingerprint": "55956e22b2b9752e833abab11359e821063d2a9dfb7fff66b13e68aefd23a5b9",
       "result_fingerprint": "a9fe72c802a533a1d75129433d8ab6c4c969a22581f680ab3b7acb3c5125dafd",
-      "source_commit": "c6b9b563f6c4ce9ac7692011d53caed1542b46be"
+      "source_commit": "94b7959736da862fbe926aaa1421cdfc5e5a40a0"
     }
   },
   "pull_request": 7,
   "schema": 1,
   "scope": "pr",
-  "source_commit": "c6b9b563f6c4ce9ac7692011d53caed1542b46be"
+  "source_commit": "94b7959736da862fbe926aaa1421cdfc5e5a40a0"
 }
