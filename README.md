@@ -4,8 +4,8 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.9.0** at
-  `c2db9e6b6553052df12d2498e9436ba7be056fe6`;
+- `tool.cad.ci` **0.10.0** at
+  `c60bf64a393dff33440d22e9e9347cbbaba71c4b`;
 - that tool pins `lib.py.cad.ci` **0.5.0** at
   `345794521fe162eb1908e1e8f38a6eabb02c8290`.
 
@@ -53,9 +53,15 @@ released high-level `reusable-ci.yml` workflow from another repository. The
 caller supplies `ACCEPTANCE_MARKER=reusable-workflow`, while root
 `cad-ci.yml` declares `ACCEPTANCE_MARKER=repository-config`. The consumer
 must observe the repository value, proving root repository variables reach the
-command and override the inherited caller value. The downstream job also
-verifies generated output, item evidence and step evidence with public
-`output_state` terminology.
+command and override the inherited caller value.
+
+The same real consumer command also checks that Docker already contains a
+`ghcr.io` authentication entry. It checks only the registry-key presence and
+never reads, decodes or writes the credential value. This proves released
+tool.cad.ci 0.10.0 performs generic GHCR login before consumer CAD-CI commands.
+
+The downstream job also verifies generated output, item evidence and step
+evidence with public `output_state` terminology.
 
 ## How it runs
 
