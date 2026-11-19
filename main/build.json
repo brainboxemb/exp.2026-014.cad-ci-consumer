@@ -1,32 +1,25 @@
 {
   "items": {
-    "examples/example-a": {
-      "input_fingerprint": "5eb6ebf1c17ea9055009e49e028b66a4e7361cd7d721b983c1de80bea7eb7b0a",
-      "result_fingerprint": "493d915619a73442b919224cbc9b407c69f75296d11a5ee7098f890f831a05e6",
-      "source_commit": "13e23f062915f55b96d93c775ec0206c531964d6"
+    "items/a": {
+      "engine": "scons",
+      "engine_schema": 1,
+      "final_bundle_sha256": "ca7375b6fa76d90f994bc0f3a1d14858cd8f602f8d4963ce817aef19e111393a",
+      "final_step": "build",
+      "final_target_spec_digest": "1c7438fb422bbbb7d63ca96621f88c08bd9eba30cd85e6a6fc817a0f3b544588",
+      "item_id": "publish-a",
+      "source_commit": "a7d71d085549377b8791006ea145e883e39dd8d9"
     },
-    "qualification/item-a": {
-      "input_fingerprint": "79e0f9861d7e45c9da16b98e56eb16ae638d1cb6e3b2e007ff79a6850dcf89e4",
-      "result_fingerprint": "5e9646b5d3f04b6dc91344b304f412bbd07543dec5b1dee7a9681483180086cd",
-      "source_commit": "13e23f062915f55b96d93c775ec0206c531964d6"
-    },
-    "qualification/item-b": {
-      "input_fingerprint": "825a1673237eab6d6337863538c1811f95215348c8b4d1dc4643bdaf9ac1ecfa",
-      "result_fingerprint": "290ec16f2aa447377edf61784a4ca08075383f6419bac61ebb301b9efea87a24",
-      "source_commit": "13e23f062915f55b96d93c775ec0206c531964d6"
-    },
-    "qualification/summary": {
-      "input_fingerprint": "9f16b5652d59927adef1f89f8165478c2628c537044f57d11eab1088f7bacf88",
-      "result_fingerprint": "4f88991840d61f607cd8014238a60e2983b2715cc42e06ecb13d013226e15b4f",
-      "source_commit": "13e23f062915f55b96d93c775ec0206c531964d6"
-    },
-    "tests/unit": {
-      "input_fingerprint": "40af1d85b279c527ccceec4408fd282299a4039ecb3443885b1929efbcdc19a9",
-      "result_fingerprint": "34b59473b1ec7cde231937e844b66d6dd6bcaeb40d31c431ee37d5d6b30f2ee2",
-      "source_commit": "13e23f062915f55b96d93c775ec0206c531964d6"
+    "items/b": {
+      "engine": "scons",
+      "engine_schema": 1,
+      "final_bundle_sha256": "68f9899d7e6bf6efebf0c732369dc42b3e869c0a4e89fe57e237ca4cff8ff01b",
+      "final_step": "build",
+      "final_target_spec_digest": "5b0d52f98aabfafea6cf73e536a08e253873692f99c14d739b9cb140f9e2dd2b",
+      "item_id": "publish-b",
+      "source_commit": "a7d71d085549377b8791006ea145e883e39dd8d9"
     }
   },
   "schema": 1,
   "scope": "main",
-  "source_commit": "13e23f062915f55b96d93c775ec0206c531964d6"
+  "source_commit": "a7d71d085549377b8791006ea145e883e39dd8d9"
 }

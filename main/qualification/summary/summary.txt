@@ -1,2 +1,0 @@
-item-a:pass
-item-b:pass
