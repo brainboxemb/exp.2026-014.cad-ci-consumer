@@ -30,7 +30,10 @@ The runner check proves:
 - a shared library change reaches both dependants;
 - a full run succeeds;
 - unchanged output is reused;
-- one exact step can be rerun without rebuilding earlier steps.
+- one exact step can be rerun without rebuilding earlier steps;
+- a direct-only fan-in summary can depend on both qualification items without widening normal incremental selection;
+- selecting the summary expands and validates both dependency branches;
+- a partial dependency cannot be consumed as a complete aggregate input.
 
 ## Publication checks
 
