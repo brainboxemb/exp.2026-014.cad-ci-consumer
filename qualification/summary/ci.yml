@@ -1,0 +1,14 @@
+id: final-summary
+kind: summary
+needs:
+  - qualification-item-a
+  - qualification-item-b
+watch:
+  - qualification/summary/**
+strategy:
+  affected: direct
+  reuse: true
+steps:
+  - id: summarize
+    run: [python, run.py]
+    outputs: [summary.txt]

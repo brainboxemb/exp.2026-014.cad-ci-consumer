@@ -40,6 +40,8 @@ The repository must keep proving these cases:
 - a full run succeeds;
 - a second unchanged run reuses output;
 - one step can be rerun without rerunning earlier steps;
+- one direct-only fan-in item depends on two sibling items without making every sibling change select the fan-in item;
+- selecting that fan-in item from a clean/partial build completes and validates both dependencies first;
 - a PR build is a sparse `build/pr/<number>` overlay;
 - main build output is a complete `build/main` baseline;
 - Pages previews live below `previews/pr-<number>/`;
