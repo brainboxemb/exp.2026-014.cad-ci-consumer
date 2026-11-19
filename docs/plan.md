@@ -8,32 +8,28 @@ must not contain generic CAD-CI implementation.
 
 ## Current status
 
-The repository currently pins released `tool.cad.ci` 0.7.1 at
-`e09e86b42ee42c3171b30d031dbb84b939635ad4`, and the latest Acceptance run on
-`main` is green.
-
-There are no open repository issues at this snapshot.
+The repository is updating to released `tool.cad.ci` 0.8.0 at
+`5e0567346da9136b2a91d7f8b375e653f923354b`.
 
 ## Current goal
 
-Remain unchanged until a new `tool.cad.ci` release needs external testing.
-
-The next expected update is after `tool.cad.ci#42` removes implicit GitHub
-Actions cache behaviour.
+Externally prove the exact 0.8.0 release, including the new contract that the
+released reusable workflow does not create persistent GitHub Actions cache
+transport.
 
 ## Next execution order
 
-1. Wait for a released `tool.cad.ci` revision that resolves #42.
-2. Pin that exact released commit in `dependencies.repos` and the reusable
-   workflow call.
-3. Add/keep an explicit external check that the released workflow contains no
-   `actions/cache` usage and creates no CAD-CI cache transport contract.
-4. Run the complete existing external test suite.
-5. Only after green `main` may Forge/CAD adopt that tool release.
+1. Pin exact 0.8.0 commit in `dependencies.repos` and the reusable workflow.
+2. Inspect the released `reusable-run.yml` and reject persistent cache actions.
+3. Run the complete existing acceptance suite.
+4. Merge only after green acceptance.
+5. Only after green `main` may Forge/CAD adopt 0.8.0.
 
 ## Open issue assessment — 2026-11-19
 
-No open issues.
+| Issue | Status | Assessment |
+| --- | --- | --- |
+| #26 Externally accept tool.cad.ci 0.8.0 without workflow cache side effects | now | Active acceptance. Prove the exact released 0.8.0 workflow and complete external suite before consumer adoption. |
 
 Do not invent work here merely because another repository is changing. New work
 belongs here only when it tests a released public `tool.cad.ci` contract.
