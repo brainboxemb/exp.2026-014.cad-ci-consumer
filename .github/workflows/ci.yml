@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   reusable-plan:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@fac7f138dc429b5236ea79871bbb96a054e2c7d3
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-plan.yml@b9a2f62c482ce85e07044fac21786ea4ea771ff2
     with:
       full_run: true
 
@@ -33,7 +33,7 @@ jobs:
           PY
 
   reusable-ci:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@fac7f138dc429b5236ea79871bbb96a054e2c7d3
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@b9a2f62c482ce85e07044fac21786ea4ea771ff2
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
