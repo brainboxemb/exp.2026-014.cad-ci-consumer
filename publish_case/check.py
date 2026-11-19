@@ -156,6 +156,27 @@ def main() -> int:
     out.mkdir(parents=True)
     local_build_store_checks(out, source_sha)
 
+    # Source freshness is a safety boundary. A deliberately wrong expected
+    # source SHA must be rejected before any generated branch is changed.
+    stale_site = out / "stale-site"
+    build_site(stale_site, source_sha, "not-published")
+    stale = run_tool(
+        "publish",
+        "pages",
+        "--repo",
+        str(ROOT),
+        "--site",
+        str(stale_site),
+        "--message",
+        "This publication must be rejected",
+        "--source-ref",
+        source_ref,
+        "--expected-source",
+        "0" * 40,
+        expect=2,
+    )
+    assert "moved" in stale or "expected" in stale
+
     if event_name == "pull_request":
         candidate = out / "pr"
         run_tool(
@@ -240,6 +261,61 @@ def main() -> int:
         )
         assert preview["source_commit"] == source_sha
         assert preview["build_commit"] == build_commit
+
+        run_tool(
+            "publish",
+            "build-cleanup",
+            "--repo",
+            str(ROOT),
+            "--pull-request",
+            str(pull_request),
+            "--message",
+            f"Clean tool.cad.ci.test PR #{pull_request} build",
+            "--source-ref",
+            source_ref,
+            "--expected-source",
+            source_sha,
+        )
+        run_tool(
+            "publish",
+            "pages-cleanup",
+            "--repo",
+            str(ROOT),
+            "--pull-request",
+            str(pull_request),
+            "--message",
+            f"Clean tool.cad.ci.test PR #{pull_request} preview",
+            "--source-ref",
+            source_ref,
+            "--expected-source",
+            source_sha,
+        )
+
+        cleaned = out / "generated-build-cleaned"
+        run_tool(
+            "build",
+            "fetch",
+            "--repo",
+            str(ROOT),
+            "--out",
+            str(cleaned),
+        )
+        assert not (cleaned / f"pr/{pull_request}").exists()
+
+        git("fetch", "--quiet", "origin", "gh-pages")
+        preview_check = subprocess.run(
+            [
+                "git",
+                "cat-file",
+                "-e",
+                f"origin/gh-pages:previews/pr-{pull_request}/provenance.json",
+            ],
+            cwd=ROOT,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        assert preview_check.returncode != 0
     else:
         candidate = out / "main"
         run_tool(
