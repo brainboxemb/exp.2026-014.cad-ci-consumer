@@ -1,0 +1,5 @@
+id: command-failure
+steps:
+  - id: run
+    inputs: [fail/run.py]
+    run: [python, run.py]

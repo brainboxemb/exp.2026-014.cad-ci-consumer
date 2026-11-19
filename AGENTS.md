@@ -2,65 +2,83 @@
 
 ## Purpose
 
-`tool.cad.ci.test` is the permanent end-to-end acceptance repository for the
-released `lib.py.cad.ci` + `tool.cad.ci` stack.
+`tool.cad.ci.test` is the permanent black-box acceptance repository for one
+exact released `tool.cad.ci` + `lib.py.cad.ci` stack.
 
-Keep this repository synthetic and domain-neutral. Do not add SolidCraft, Forge
-or real CAD behaviour here.
+Keep it synthetic and domain-neutral. Do not add Forge, SolidCraft or real CAD
+behaviour.
 
-## Test structure
+## Released-stack rule
 
-Use several independent top-level consumer cases instead of one catch-all
-synthetic repository.
+The repository consumes only the exact tool commit in `dependencies.repos`.
+That tool must itself pin one exact released library commit.
 
-Expected cases include:
+Never follow moving `main`.
+
+Current accepted structure:
 
 - `simple_case1`
 - `more_complex_case2`
 - `dependency_case`
 - `partial_rerun_case`
-- `publish_case`
+- `directory_output_case`
 - `timeout_case`
-- `external_error_case`
+- `publish_case`
 
-Each case should have a small understandable `cad-ci.yml` and item tree and
-prove one coherent contract.
-
-A failure should make it obvious which generic CI behaviour broke.
+Each case owns a small `cad-ci.yml`, source files and `check.py`. A failure
+must clearly identify the contract that broke.
 
 ## Development boundary
 
-Do not develop generic CI behaviour in this repository.
+Do not develop generic CI behaviour here.
 
 The sequence is:
 
-1. define the requirement in `lib.py.cad.ci`;
-2. implement and unit-test it there;
-3. release the library;
-4. expose the released library through `tool.cad.ci`;
-5. release the tool;
-6. pin that exact tool release here;
-7. prove the complete stack with the representative cases;
-8. only then migrate Forge or CAD.
+1. define/design generic behaviour in `lib.py.cad.ci`;
+2. implement, test and release the library;
+3. pin that release in `tool.cad.ci`;
+4. expose only the CLI adapter, test it and release the tool;
+5. pin that exact tool release here;
+6. prove the released stack with these cases;
+7. only then migrate Forge or CAD.
 
-If a case reveals missing generic behaviour, return the work to the library or
-tool. Do not patch around it in this repository.
+If a case finds a generic gap, return to the library/tool. Do not add a local
+workaround.
 
-## Tool pin
+## Case helpers
 
-`tool.cad.ci` is external tooling.
+`tests/support.py` may only provide process/file helpers such as:
+- invoking the exact bootstrapped tool;
+- copying a case to disposable output;
+- deleting local SCons state for fresh-runner tests;
+- reading JSON.
 
-- Keep its exact commit in `dependencies.repos`.
-- Bootstrap it under `ext/cad-ci`.
-- Local checks and GitHub Actions use the same pinned checkout.
-- Never follow moving `main` in CI.
+Do not put planner, SCons, cache, publication or domain decisions in the helper.
 
-## Language and code
+## Publication case
 
-Use short, direct engineering language. Prefer names that say what the code
-actually does.
+`publish_case` may use the real GitHub event and repository remote because its
+purpose is to verify generated `build` and `gh-pages` branches.
 
-Code must explain non-obvious flow, reuse rules, publication safety and failure
-handling with concise docstrings/comments.
+It must use public `.cad-ci` evidence, never old custom fingerprint/state
+files.
 
-Keep one logical change in one branch and pull request.
+Source freshness failures, generated-branch publication and provenance are
+tested through the released tool, not reimplemented in the case.
+
+## Workflow
+
+The workflow should remain a simple sequence:
+- checkout exact event source;
+- bootstrap exact tool;
+- install it;
+- run each independent case.
+
+Do not put CI selection or execution semantics in workflow YAML.
+
+## Code and language
+
+Use short literal engineering language and explanatory docstrings/comments for
+non-obvious checks.
+
+One logical acceptance update uses one issue, one branch and one pull request.

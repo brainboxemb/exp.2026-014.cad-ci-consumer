@@ -1,5 +1,0 @@
-schema: 1
-items:
-  - tests/unit
-  - examples/*
-  - qualification/*
