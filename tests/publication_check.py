@@ -82,6 +82,10 @@ def main() -> int:
 
     if event_name == "pull_request":
         overlay = out / "pr"
+        # Publication is an acceptance scenario, not a test of whichever
+        # files happen to be changed by this repository PR. Select one known
+        # complete item explicitly so documentation-only PRs still exercise a
+        # real sparse overlay.
         run(
             "build",
             "prepare-pr",
@@ -95,10 +99,8 @@ def main() -> int:
             source_sha,
             "--pull-request",
             str(pull_request),
-            "--base",
-            base_sha,
-            "--head",
-            source_sha,
+            "--items",
+            "qualification-item-a",
         )
         build_commit = run(
             "publish",
