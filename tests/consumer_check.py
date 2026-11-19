@@ -93,7 +93,7 @@ def main() -> int:
     assert "final-summary:summarize\tran" in first
     assert (
         ROOT / "build/qualification/summary/summary.txt"
-    ).read_text(encoding="utf-8") == "item-a:ok\nitem-b:ok\n"
+    ).read_text(encoding="utf-8") == "item-a:pass\nitem-b:pass\n"
 
     # A second unchanged run reuses the complete fan-in graph.
     second = run("run", "--repo", ".")
