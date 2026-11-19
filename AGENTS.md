@@ -24,6 +24,7 @@ Current accepted structure:
 - `directory_output_case`
 - `timeout_case`
 - `publish_case`
+- `workflow_case`
 
 Each case owns a small `cad-ci.yml`, source files and `check.py`. A failure
 must clearly identify the contract that broke.
@@ -68,13 +69,15 @@ tested through the released tool, not reimplemented in the case.
 
 ## Workflow
 
-The workflow should remain a simple sequence:
-- checkout exact event source;
-- bootstrap exact tool;
-- install it;
-- run each independent case.
+The workflow proves both public consumption paths:
+- direct CLI cases use the exact commit in `dependencies.repos`;
+- `workflow_case` calls the reusable plan/run workflows from the same released
+  commit using cross-repository `uses:` references.
 
-Do not put CI selection or execution semantics in workflow YAML.
+Do not copy the implementation of reusable workflows into this repository.
+The caller may inspect returned plan output and provide domain-neutral
+acceptance inputs, but generic selection/execution semantics stay in the
+released tool/library stack.
 
 ## Code and language
 
