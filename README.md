@@ -4,8 +4,8 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.7.0** at
-  `ce1c82a11829b0ce2664d10f526e64132dc71c5f`;
+- `tool.cad.ci` **0.8.0** at
+  `5e0567346da9136b2a91d7f8b375e653f923354b`;
 - that tool pins `lib.py.cad.ci` **0.4.0** at
   `73985ca9638bf7a5e3209bfd1d3896d043193bb2`.
 
@@ -59,8 +59,7 @@ step evidence with public `output_state` terminology.
 `scripts/bootstrap.py` checks that commit out under `ext/cad-ci`.
 The workflow calls only the high-level `reusable-ci.yml` from that exact
 released commit. The high-level call uploads its generated `build/` tree for a
-downstream acceptance job; the consumer does not rebuild generic plan/run/cache
-orchestration locally.
+downstream acceptance job; the consumer does not rebuild generic plan/run orchestration locally.
 
 Most cases copy their immutable template to `output/cases/<name>` before
 mutating inputs. The publication case runs against its own source tree because
