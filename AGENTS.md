@@ -2,58 +2,65 @@
 
 ## Purpose
 
-This repository is a synthetic consumer for `tool.cad.ci`. Keep it small and artificial. Do not add SolidCraft, Forge, or real CAD behaviour here.
+`tool.cad.ci.test` is the permanent end-to-end acceptance repository for the
+released `lib.py.cad.ci` + `tool.cad.ci` stack.
 
-It exists to prove the tool itself before Forge or CAD consumes a new release.
+Keep this repository synthetic and domain-neutral. Do not add SolidCraft, Forge
+or real CAD behaviour here.
 
-## Language
+## Test structure
 
-Write like an engineer explaining the repository to another engineer.
+Use several independent top-level consumer cases instead of one catch-all
+synthetic repository.
 
-- Use short, direct sentences.
-- Use normal engineering words.
-- Avoid academic, management, and architecture-heavy wording.
-- Prefer concrete names from the files and commands.
+Expected cases include:
 
-## Code comments and explanations
+- `simple_case1`
+- `more_complex_case2`
+- `dependency_case`
+- `partial_rerun_case`
+- `publish_case`
+- `timeout_case`
+- `external_error_case`
 
-Code should explain its important flow and safety rules.
+Each case should have a small understandable `cad-ci.yml` and item tree and
+prove one coherent contract.
 
-- Give non-trivial modules/functions a short explanation.
-- Explain why a publication or reuse check exists.
-- Explain why one generated namespace is changed and another is preserved.
-- Do not add comments that only repeat Python syntax.
+A failure should make it obvious which generic CI behaviour broke.
 
-## Git
+## Development boundary
 
-Keep one logical change in one branch and pull request. Run the consumer checks before merging. Do not mix unrelated experiments into this repository.
+Do not develop generic CI behaviour in this repository.
 
-## Test role
+The sequence is:
 
-The repository must keep proving these cases:
+1. define the requirement in `lib.py.cad.ci`;
+2. implement and unit-test it there;
+3. release the library;
+4. expose the released library through `tool.cad.ci`;
+5. release the tool;
+6. pin that exact tool release here;
+7. prove the complete stack with the representative cases;
+8. only then migrate Forge or CAD.
 
-- one library-test item;
-- one integration item;
-- two qualification items;
-- a qualification change does not select its sibling;
-- a shared library change reaches all dependants;
-- a full run succeeds;
-- a second unchanged run reuses output;
-- one step can be rerun without rerunning earlier steps;
-- one direct-only fan-in item depends on two sibling items without making every sibling change select the fan-in item;
-- selecting that fan-in item from a clean/partial build completes and validates both dependencies first;
-- a PR build is a sparse `build/pr/<number>` overlay;
-- main build output is a complete `build/main` baseline;
-- Pages previews live below `previews/pr-<number>/`;
-- stable Pages and previews do not overwrite each other;
-- generated branch output can be read back after the GitHub publication.
+If a case reveals missing generic behaviour, return the work to the library or
+tool. Do not patch around it in this repository.
 
 ## Tool pin
 
-`tool.cad.ci` is an external tool, not copied source.
+`tool.cad.ci` is external tooling.
 
 - Keep its exact commit in `dependencies.repos`.
 - Bootstrap it under `ext/cad-ci`.
 - Local checks and GitHub Actions use the same pinned checkout.
 - Never follow moving `main` in CI.
-- During tool development this synthetic repo may temporarily pin the exact commit of an open tool PR. Replace that pin with the released commit after the release is published.
+
+## Language and code
+
+Use short, direct engineering language. Prefer names that say what the code
+actually does.
+
+Code must explain non-obvious flow, reuse rules, publication safety and failure
+handling with concise docstrings/comments.
+
+Keep one logical change in one branch and pull request.
