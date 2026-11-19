@@ -1,23 +1,19 @@
-"""Create one synthetic fan-in summary from two completed item outputs."""
+"""Create one synthetic fan-in summary through the public CI library API."""
 
-from __future__ import annotations
-
-import json
-import os
-from pathlib import Path
+from cad_ci import current_context
 
 
-repo = Path(os.environ["CAD_CI_REPO"])
-out = Path(os.environ["CAD_CI_OUTPUT"])
-out.mkdir(parents=True, exist_ok=True)
-
+context = current_context()
 lines = []
-for item in ("item-a", "item-b"):
-    root = repo / "build" / "qualification" / item
-    state = json.loads((root / "item.json").read_text(encoding="utf-8"))
-    if state.get("status") != "pass":
-        raise RuntimeError(f"{item} is not complete")
-    verified = (root / "verified.txt").read_text(encoding="utf-8").strip()
-    lines.append(f"{item}:{verified}")
+for item_id in ("qualification-item-a", "qualification-item-b"):
+    dependency = context.dependency(item_id)
+    verified = dependency.output("verified.txt").read_text(
+        encoding="utf-8"
+    ).strip()
+    lines.append(f"{item_id.removeprefix('qualification-')}:{verified}")
 
-(out / "summary.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+out = context.repo / "build" / context.item.path
+(out / "summary.txt").write_text(
+    "\n".join(lines) + "\n",
+    encoding="utf-8",
+)
