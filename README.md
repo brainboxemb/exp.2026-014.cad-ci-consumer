@@ -1,63 +1,101 @@
-# exp.2026-014.cad-ci-consumer
+# tool.cad.ci.test
 
-Synthetic consumer used to prove `tool.cad.ci` outside the tool repository.
+Permanent end-to-end acceptance tests for the released `lib.py.cad.ci` +
+`tool.cad.ci` stack.
 
-The repository deliberately contains no SolidCraft logic. It tests repository layout, affected selection, dependencies, output reuse, partial reruns, durable build output and Pages publication.
+This repository contains no SolidCraft, Forge or real CAD behaviour. It builds
+small representative consumer repositories that prove the generic CI contract
+before Forge or CAD is allowed to migrate to a new release.
 
-`dependencies.repos` pins one exact `tool.cad.ci` commit. `scripts/bootstrap.py` checks that revision out under `ext/cad-ci`. Local runs and GitHub Actions use that same checkout.
+`dependencies.repos` pins one exact `tool.cad.ci` commit.
+`scripts/bootstrap.py` checks that revision out under `ext/cad-ci`. Local
+runs and GitHub Actions use that same checkout.
 
-## Repository shape
+## Test cases
 
-```text
-tests/unit/            library tests
-examples/example-a/    integration example
-qualification/item-a/  qualification item
-qualification/item-b/  second qualification item
-site/                   synthetic Pages consumer
-```
-
-## Runner checks
+The repository is moving to independent top-level cases:
 
 ```text
-python scripts/bootstrap.py
-python -m pip install -e ext/cad-ci
-python tests/consumer_check.py
+simple_case1/
+more_complex_case2/
+dependency_case/
+partial_rerun_case/
+publish_case/
+timeout_case/
+external_error_case/
 ```
 
-The runner check proves:
+Each case owns its own small `cad-ci.yml` and item tree. A case should prove
+one coherent part of the CI contract so a failure immediately points at the
+broken behaviour.
 
-- a change to `item-a` does not select `item-b`;
-- a shared library change reaches both dependants;
-- a full run succeeds;
-- unchanged output is reused;
-- one exact step can be rerun without rebuilding earlier steps;
-- a direct-only fan-in summary can depend on both qualification items without widening normal incremental selection;
-- selecting the summary expands and validates both dependency branches;
-- a partial dependency cannot be consumed as a complete aggregate input.
+### simple_case1
 
-## Publication checks
+Proves:
+- one item with ordered steps;
+- declared output;
+- successful complete run;
+- second unchanged run reuses the result.
 
-GitHub Actions also runs `tests/publication_check.py`.
+### more_complex_case2
 
-On a pull request it publishes:
+Proves:
+- several items;
+- multiple steps;
+- changed-file selection;
+- only affected work runs.
 
-```text
-build/pr/<number>/qualification/item-a/...
-gh-pages/previews/pr-<number>/...
-```
+### dependency_case
 
-On `main` it publishes:
+Proves:
+- dependency ordering;
+- dependency changes select dependants;
+- direct-only fan-in does not widen ordinary changes;
+- explicit fan-in selection expands its dependencies.
 
-```text
-build/main/<all item source paths>/...
-gh-pages/
-```
+### partial_rerun_case
 
-The test reads those generated branches back after publication and verifies the stored item state and `provenance.json`.
+Proves:
+- exact `--step`;
+- `--from`;
+- `--until`;
+- stale earlier state is rejected;
+- partial runs do not write complete item state.
 
-## Directory output proof
+### publish_case
 
-`qualification/item-a` has a final `package` step that declares the complete
-`results/` directory as its output. CI changes a nested file after a successful
-run and verifies that `tool.cad.ci` reruns only `package`; earlier current
-steps are reused.
+Proves:
+- complete `build/main`;
+- sparse `build/pr/<number>`;
+- PR overlay resolution;
+- main update of selected paths only;
+- stable Pages plus PR preview;
+- one-PR cleanup;
+- stale-source refusal;
+- retry of an actual generated-branch race.
+
+### timeout_case
+
+Proves:
+- repository default timeout;
+- step override;
+- actual process termination;
+- timeout stored separately from command exit failure;
+- timed-out output is never reusable.
+
+### external_error_case
+
+Proves:
+- external resource present;
+- external resource explicitly absent;
+- lookup/auth/network failure;
+- only explicit absence may trigger creation;
+- lookup errors and timeouts are never treated as "missing".
+
+## Rules
+
+- Cases stay small and readable.
+- Cases do not contain domain behaviour.
+- Generic implementation is never developed here.
+- This repository consumes one exact released/pinned tool revision.
+- Forge and CAD migrate only after all required cases pass.
