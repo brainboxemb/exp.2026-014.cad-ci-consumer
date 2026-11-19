@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Black-box directory materialization and CacheDir restore acceptance."""
+"""Black-box directory output and CacheDir restore acceptance."""
 
 from pathlib import Path
 import shutil
@@ -18,28 +18,28 @@ def main() -> int:
     generated = repo / "build/item/generated"
 
     cold = run_tool("run", "--repo", str(repo))
-    assert "built: directory-case:build materialization=unchanged" in cold
+    assert "built: directory-case:build output=unchanged" in cold
     assert (generated / "nested/value.txt").read_text() == "one\n"
     assert (generated / "empty").is_dir()
 
     current = run_tool("run", "--repo", str(repo))
-    assert "current: directory-case:build materialization=unchanged" in current
+    assert "current: directory-case:build output=unchanged" in current
 
     shutil.rmtree(generated)
     restored = run_tool("run", "--repo", str(repo))
-    assert "current: directory-case:build materialization=restored" in restored
+    assert "current: directory-case:build output=restored" in restored
     assert (generated / "empty").is_dir()
 
     (generated / "nested/value.txt").write_text("tampered\n", encoding="utf-8")
     (generated / "extra.txt").write_text("extra\n", encoding="utf-8")
     repaired = run_tool("run", "--repo", str(repo))
-    assert "current: directory-case:build materialization=repaired" in repaired
+    assert "current: directory-case:build output=repaired" in repaired
     assert (generated / "nested/value.txt").read_text() == "one\n"
     assert not (generated / "extra.txt").exists()
 
     remove_local_scons_state(repo, keep_cache=True)
     fresh = run_tool("run", "--repo", str(repo))
-    assert "cache_restored: directory-case:build materialization=restored" in fresh
+    assert "cache_restored: directory-case:build output=restored" in fresh
     assert (generated / "nested/value.txt").read_text() == "one\n"
     assert (generated / "empty").is_dir()
 
