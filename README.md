@@ -4,8 +4,8 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.5.0** at
-  `dd40b10b23fca266b9084f39049aa5ae1ef46db4`;
+- `tool.cad.ci` **0.6.0** at
+  `fac7f138dc429b5236ea79871bbb96a054e2c7d3`;
 - that tool pins `lib.py.cad.ci` **0.3.0** at
   `155ec24915e7b2d1b9f5306db9df84a50b53dba8`.
 
@@ -48,15 +48,18 @@ real generated `build` branch publication, Pages stable/preview publication
 and source/build provenance.
 
 `workflow_case` is the root consumer used by GitHub itself to prove the released
-reusable plan/run workflows from another repository. Its command fails unless
-the reusable run forwards the declared non-secret consumer environment.
+high-level `reusable-ci.yml` workflow from another repository. Its command fails
+unless the reusable workflow forwards the declared non-secret consumer
+environment. The acceptance workflow also downloads the generic build artifact
+and verifies the caller result plus hidden `.cad-ci` evidence.
 
 ## How it runs
 
 `dependencies.repos` stores one exact tool commit for the CLI acceptance cases.
 `scripts/bootstrap.py` checks that commit out under `ext/cad-ci`.
-The same workflow also calls `reusable-plan.yml` and `reusable-run.yml` directly
-from that exact released commit, proving the cross-repository workflow path.
+The same workflow calls only `reusable-ci.yml` from that exact released commit,
+proving the normal cross-repository consumer path without rebuilding generic
+plan/run/cache orchestration locally.
 
 Most cases copy their immutable template to `output/cases/<name>` before
 mutating inputs. The publication case runs against its own source tree because
