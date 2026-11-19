@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.8.0** at
-  `5e0567346da9136b2a91d7f8b375e653f923354b`;
-- that tool pins `lib.py.cad.ci` **0.4.0** at
-  `73985ca9638bf7a5e3209bfd1d3896d043193bb2`.
+- `tool.cad.ci` **0.9.0** at
+  `c2db9e6b6553052df12d2498e9436ba7be056fe6`;
+- that tool pins `lib.py.cad.ci` **0.5.0** at
+  `345794521fe162eb1908e1e8f38a6eabb02c8290`.
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
@@ -23,6 +23,7 @@ partial_rerun_case/
 directory_output_case/
 timeout_case/
 publish_case/
+workflow_case/
 ```
 
 `simple_case1` proves cold build, unchanged CURRENT results, verify-only
@@ -49,9 +50,12 @@ and source/build provenance.
 
 `workflow_case` is the root consumer used by GitHub itself. It proves the
 released high-level `reusable-ci.yml` workflow from another repository. The
-consumer command fails unless the declared non-secret environment reaches it.
-The downstream acceptance job also verifies generated output, item evidence and
-step evidence with public `output_state` terminology.
+caller supplies `ACCEPTANCE_MARKER=reusable-workflow`, while root
+`cad-ci.yml` declares `ACCEPTANCE_MARKER=repository-config`. The consumer
+must observe the repository value, proving root repository variables reach the
+command and override the inherited caller value. The downstream job also
+verifies generated output, item evidence and step evidence with public
+`output_state` terminology.
 
 ## How it runs
 

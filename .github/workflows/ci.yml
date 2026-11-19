@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@5e0567346da9136b2a91d7f8b375e653f923354b
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@c2db9e6b6553052df12d2498e9436ba7be056fe6
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'

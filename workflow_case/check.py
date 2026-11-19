@@ -6,11 +6,11 @@ import os
 from pathlib import Path
 
 
-EXPECTED = "reusable-workflow"
+EXPECTED = "repository-config"
 
 
 def main() -> int:
-    """Fail unless the generic workflow forwards the declared consumer value."""
+    """Fail unless repository CI configuration reaches the consumer command."""
 
     actual = os.environ.get("ACCEPTANCE_MARKER")
     if actual != EXPECTED:
