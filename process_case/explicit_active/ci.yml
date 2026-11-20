@@ -1,0 +1,8 @@
+id: explicit-active
+process: true
+watch: [explicit_active/**]
+steps:
+  - id: build
+    inputs: [explicit_active/run.py]
+    run: [python, run.py]
+    outputs: [result.txt]

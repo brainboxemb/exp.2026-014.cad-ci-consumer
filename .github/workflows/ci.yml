@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@c60bf64a393dff33440d22e9e9347cbbaba71c4b
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@96d4c9d6076b7452933c048ace65cf2b0a159d64
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
@@ -119,6 +119,8 @@ jobs:
         run: python dependency_case/check.py
       - name: Partial reruns
         run: python partial_rerun_case/check.py
+      - name: Process selection
+        run: python process_case/check.py
       - name: Directory output and CacheDir
         run: python directory_output_case/check.py
       - name: Timeouts and failures

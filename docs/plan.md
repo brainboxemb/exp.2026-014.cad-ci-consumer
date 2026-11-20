@@ -8,35 +8,37 @@ must not contain generic CAD-CI implementation.
 
 ## Current goal
 
-Complete #30: externally test released `tool.cad.ci` **0.10.0** at exact
-commit `c60bf64a393dff33440d22e9e9347cbbaba71c4b`.
+Complete #32: externally test released `tool.cad.ci 0.11.0` at exact commit
+`96d4c9d6076b7452933c048ace65cf2b0a159d64`.
 
-The release adds generic GHCR authentication to the reusable CAD-CI workflow.
-The external test must prove that a real consumer command runs with Docker
-already authenticated to `ghcr.io`, while retaining all existing 0.9.0
-acceptance behavior.
+That tool pins `lib.py.cad.ci 0.6.0` and exposes item-level `process`
+participation through the existing thin CLI/workflow stack.
 
 ## Execution order
 
-1. Pin the exact 0.10.0 tool commit in `dependencies.repos`.
-2. Call `reusable-ci.yml` from the same exact 0.10.0 commit.
-3. Grant the caller `packages: read`.
-4. Extend `workflow_case` so its real CAD-CI command verifies only that
-   Docker configuration contains a `ghcr.io` authentication entry.
-5. Never print, decode or copy the credential value.
-6. Run the complete existing external acceptance suite.
-7. Merge only after green PR CI.
-8. Verify green main acceptance before Forge adopts tool 0.10.0.
+1. Pin exact tool 0.11.0 commit in `dependencies.repos`.
+2. Keep direct CLI and reusable workflow consumption on that same exact commit.
+3. Add one synthetic `process_case` that proves:
+   - normal processed items execute;
+   - `process: false` items are absent from a full plan/run;
+   - explicit execution of a non-processed item fails clearly.
+4. Run the complete existing external acceptance suite.
+5. Merge only after green PR CI.
+6. Verify green main acceptance before Forge adopts tool 0.11.0.
 
 ## Open issue assessment — 2026-11-20
 
 | Issue | Status | Assessment |
 | --- | --- | --- |
-| #30 Externally test tool.cad.ci 0.10.0 GHCR authentication | now | Required black-box proof before Forge may use the new reusable workflow for its private/shared runtime package. |
+| #32 Externally test tool.cad.ci 0.11.0 process selection | now | Required released-stack proof before Forge may use staged item processing. |
+| #34 Stop publishing an unused repository Pages site | later | Repository/CI housekeeping. Keep separate from #32 and preserve `publish_case` coverage of released Pages behavior. |
 
-No other implementation issues are currently open in this repository.
+## Released state
+
+The previous 0.10.0 GHCR acceptance work is complete. It remains part of the
+regression suite but is no longer active work.
 
 ## Boundary
 
-This repository proves the released workflow from outside. It does not implement
-registry login, CAD-CI behavior or Forge/SolidCraft behavior.
+This repository proves released behavior from outside. It does not parse
+`process`, calculate selection itself or implement CAD-CI behavior.

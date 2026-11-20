@@ -1,0 +1,8 @@
+id: disabled
+process: false
+watch: [disabled/**]
+steps:
+  - id: build
+    inputs: [disabled/run.py]
+    run: [python, run.py]
+    outputs: [result.txt]
