@@ -98,7 +98,7 @@ fetches and cleanup, but no write reaches the GitHub repository. This preserves
 the public publication contract without triggering GitHub Pages.
 
 
-## 0.12.0 maintenance stack
+## 0.12.1 maintenance stack
 
 The test repository accepts timing evidence only by reading generated public
 evidence from the released stack. It does not import or reproduce timing logic.
