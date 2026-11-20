@@ -24,6 +24,22 @@ consumer command must observe the repository value.
 This verifies the public precedence without copying variable parsing or merge
 logic into this repository.
 
+## Process selection acceptance
+
+A dedicated `process_case` is a synthetic consumer repository with one normal
+item and one `process: false` item.
+
+Its `check.py` invokes only the released CLI through `tests/support.py` and
+asserts the public results:
+
+- a full JSON plan contains only the processed item;
+- a full run materializes only that item's output/evidence;
+- no build output is created for the non-processed item;
+- an explicit run of the non-processed item exits with the documented error.
+
+The case does not import library planner/config modules and does not calculate
+selection independently.
+
 ## Failure boundary
 
 If a case exposes missing generic behavior, implementation returns to

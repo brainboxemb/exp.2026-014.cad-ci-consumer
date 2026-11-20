@@ -19,13 +19,25 @@ The suite covers:
 - timeout/failure behavior;
 - durable build and Pages publication;
 - high-level reusable workflow execution and output handoff;
-- reusable-workflow authentication to GitHub Container Registry.
+- reusable-workflow authentication to GitHub Container Registry;
+- item-level `process` participation through the released library/tool stack.
 
 For repository variables:
 - root `cad-ci.yml:variables` must reach the consumer command;
 - when the caller supplies the same non-secret environment name, the repository
   value must override it;
 - CAD-CI implementation details are not reproduced in the test repository.
+
+## Process selection
+
+The external suite must prove released item participation without reproducing
+selection logic:
+
+- omitted `process` behaves as processed;
+- `process: false` is absent from a full plan and full run;
+- a processed item still runs and materializes normal evidence/output;
+- explicit execution of a non-processed item fails clearly;
+- the acceptance case checks observable CLI/output behavior only.
 
 ## Completion
 
