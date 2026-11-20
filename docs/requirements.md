@@ -95,15 +95,16 @@ The acceptance workflow therefore requires only read access to repository
 contents plus the existing package-read permission.
 
 
-## Tool 0.12.0 maintenance acceptance
+## Tool 0.12.1 maintenance acceptance
 
-External acceptance of tool 0.12.0 must prove:
+External acceptance of tool 0.12.1 must prove:
 
-- the exact tool commit is `05af21546ea71907cd9db4b56f5d5ccd644c0170`;
+- the exact tool commit is `0e7d8a876d95484a4c8870356f3b0ca67e5e493b`;
 - public item evidence schema is 2 and includes run timestamps;
 - public step evidence schema is 3 and includes run timestamps plus action
   timestamps when the action executes;
 - timeout/failure actions expose action timestamps;
 - high-level reusable CI owns superseded-run cancellation;
 - lower-level reusable plan/run workflows do not own that high-level
-  concurrency group.
+  concurrency group;
+- durable build preparation accepts current item evidence schema 2 while legacy stored schema 1 remains readable.
