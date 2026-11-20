@@ -10,17 +10,30 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@0e7d8a876d95484a4c8870356f3b0ca67e5e493b
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@8bab91eaf8554533e5f63620421ed9554f66eb91
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
       upload_build: true
       build_artifact_name: cad-ci-workflow-acceptance
 
+  no_output:
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@8bab91eaf8554533e5f63620421ed9554f66eb91
+    with:
+      upload_build: true
+      build_artifact_name: cad-ci-empty-acceptance
+
   test:
-    needs: consumer
+    needs: [consumer, no_output]
     runs-on: ubuntu-latest
     steps:
+      - name: Verify no-output reusable workflow contract
+        run: |
+          if [ -n "${{ needs.no_output.outputs.build_artifact_name }}" ]; then
+            echo "unexpected build artifact: ${{ needs.no_output.outputs.build_artifact_name }}"
+            exit 1
+          fi
+
       - name: Download reusable workflow build
         uses: actions/download-artifact@v4
         with:
