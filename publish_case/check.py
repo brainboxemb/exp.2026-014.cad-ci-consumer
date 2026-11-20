@@ -144,11 +144,13 @@ def assert_item_evidence(path: Path, expected_item: str) -> None:
     """Check the public evidence format in fetched durable output."""
 
     state = read_json(path)
-    assert state["schema"] == 1
+    assert state["schema"] == 2
     assert state["engine"] == "scons"
     assert state["status"] == "pass"
     assert state["item"] == expected_item
     assert state["final_bundle_sha256"]
+    assert state["run_started_at"]
+    assert state["run_finished_at"]
 
 
 def local_build_store_checks(out: Path, source_sha: str) -> None:
