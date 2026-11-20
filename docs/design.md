@@ -96,3 +96,13 @@ working clone is then used as `--repo` for every released publication command.
 The tool therefore performs real Git branch publication, freshness checks,
 fetches and cleanup, but no write reaches the GitHub repository. This preserves
 the public publication contract without triggering GitHub Pages.
+
+
+## 0.12.0 maintenance stack
+
+The test repository accepts timing evidence only by reading generated public
+evidence from the released stack. It does not import or reproduce timing logic.
+
+Concurrency acceptance inspects the exact released workflow files after
+bootstrap: only the high-level reusable workflow may own the normal-consumer
+concurrency group.
