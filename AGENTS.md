@@ -19,6 +19,7 @@ Current accepted structure:
 
 - `simple_case1`
 - `more_complex_case2`
+- `fresh_runner_case`
 - `dependency_case`
 - `partial_rerun_case`
 - `process_case`
