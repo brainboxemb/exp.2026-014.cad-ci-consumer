@@ -33,6 +33,12 @@ def main() -> int:
     assert timeout_state["outcome"] == "ERROR"
     assert timeout_state["timeout_seconds"] == 1
     assert timeout_state["exit_code"] is None
+    assert timeout_state["schema"] == 3
+    assert timeout_state["action_executed"] is True
+    assert timeout_state["started_at"]
+    assert timeout_state["finished_at"]
+    assert timeout_state["run_started_at"]
+    assert timeout_state["run_finished_at"]
     assert not (repo / "build/wait/.cad-ci/item.json").exists()
 
     override = run_tool(
@@ -46,6 +52,10 @@ def main() -> int:
     override_state = step_evidence(repo, "override")
     assert override_state["status"] == "pass"
     assert override_state["timeout_seconds"] == 3
+    assert override_state["schema"] == 3
+    assert override_state["action_executed"] is True
+    assert override_state["started_at"]
+    assert override_state["finished_at"]
     assert (repo / "build/override/.cad-ci/item.json").is_file()
 
     failed = run_tool(
@@ -61,6 +71,10 @@ def main() -> int:
     assert failure_state["status"] == "fail"
     assert failure_state["outcome"] == "ERROR"
     assert failure_state["exit_code"] == 3
+    assert failure_state["schema"] == 3
+    assert failure_state["action_executed"] is True
+    assert failure_state["started_at"]
+    assert failure_state["finished_at"]
     assert not (repo / "build/fail/.cad-ci/item.json").exists()
 
     print("timeout_case passed")

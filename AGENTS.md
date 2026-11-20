@@ -102,3 +102,13 @@ Keep it as a current snapshot:
 
 Issues contain detail and history. README and design/requirements documents describe stable purpose and behavior. The plan tells an agent what work is actually current and what should happen next.
 
+
+
+## Acceptance run policy
+
+The complete external suite is automatic on pull requests only.
+`workflow_dispatch` is the explicit main/manual rerun path.
+
+Generated build/Pages publication tests use only an isolated local Git remote.
+Do not reintroduce writes to this repository's real `build` or `gh-pages`
+branches merely to test publication behavior.

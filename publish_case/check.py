@@ -28,6 +28,70 @@ def git(*args: str) -> str:
     ).strip()
 
 
+def git_in(repo: Path, *args: str) -> str:
+    """Run Git in one explicit repository."""
+
+    return subprocess.check_output(
+        ["git", *args],
+        cwd=repo,
+        text=True,
+    ).strip()
+
+
+def isolated_repository(
+    out: Path,
+    source_sha: str,
+    source_ref: str,
+) -> Path:
+    """Create a local remote/clone pair for real publication commands."""
+
+    remote = out / "remote.git"
+    repository = out / "repository"
+    shutil.rmtree(remote, ignore_errors=True)
+    shutil.rmtree(repository, ignore_errors=True)
+
+    subprocess.run(
+        ["git", "init", "--bare", "--quiet", str(remote)],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "push",
+            "--quiet",
+            str(remote),
+            f"{source_sha}:refs/heads/{source_ref}",
+        ],
+        cwd=ROOT,
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "--git-dir",
+            str(remote),
+            "symbolic-ref",
+            "HEAD",
+            f"refs/heads/{source_ref}",
+        ],
+        check=True,
+    )
+    subprocess.run(
+        ["git", "clone", "--quiet", str(remote), str(repository)],
+        check=True,
+    )
+    git_in(repository, "config", "user.name", "tool.cad.ci.test")
+    git_in(
+        repository,
+        "config",
+        "user.email",
+        "tool.cad.ci.test@example.invalid",
+    )
+    if git_in(repository, "rev-parse", "HEAD") != source_sha:
+        raise RuntimeError("isolated repository is not at the event source commit")
+    return repository
+
+
 def source_event() -> tuple[str, str, str, int]:
     """Return event name, source SHA/ref and PR number."""
 
@@ -80,11 +144,13 @@ def assert_item_evidence(path: Path, expected_item: str) -> None:
     """Check the public evidence format in fetched durable output."""
 
     state = read_json(path)
-    assert state["schema"] == 1
+    assert state["schema"] == 2
     assert state["engine"] == "scons"
     assert state["status"] == "pass"
     assert state["item"] == expected_item
     assert state["final_bundle_sha256"]
+    assert state["run_started_at"]
+    assert state["run_finished_at"]
 
 
 def local_build_store_checks(out: Path, source_sha: str) -> None:
@@ -155,6 +221,7 @@ def main() -> int:
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
     local_build_store_checks(out, source_sha)
+    repository = isolated_repository(out, source_sha, source_ref)
 
     # Source freshness is a safety boundary. A deliberately wrong expected
     # source SHA must be rejected before any generated branch is changed.
@@ -164,7 +231,7 @@ def main() -> int:
         "publish",
         "pages",
         "--repo",
-        str(ROOT),
+        str(repository),
         "--site",
         str(stale_site),
         "--message",
@@ -199,7 +266,7 @@ def main() -> int:
             "publish",
             "build",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--candidate",
             str(candidate),
             "--scope",
@@ -220,7 +287,7 @@ def main() -> int:
             "publish",
             "pages",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--site",
             str(site),
             "--pull-request",
@@ -238,7 +305,7 @@ def main() -> int:
             "build",
             "fetch",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--out",
             str(generated),
         ).strip()
@@ -252,9 +319,10 @@ def main() -> int:
             generated / f"pr/{pull_request}/items/b"
         ).exists()
 
-        git("fetch", "--quiet", "origin", "gh-pages")
+        git_in(repository, "fetch", "--quiet", "origin", "gh-pages")
         preview = json.loads(
-            git(
+            git_in(
+                repository,
                 "show",
                 f"origin/gh-pages:previews/pr-{pull_request}/provenance.json",
             )
@@ -266,7 +334,7 @@ def main() -> int:
             "publish",
             "build-cleanup",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--pull-request",
             str(pull_request),
             "--message",
@@ -280,7 +348,7 @@ def main() -> int:
             "publish",
             "pages-cleanup",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--pull-request",
             str(pull_request),
             "--message",
@@ -296,13 +364,13 @@ def main() -> int:
             "build",
             "fetch",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--out",
             str(cleaned),
         )
         assert not (cleaned / f"pr/{pull_request}").exists()
 
-        git("fetch", "--quiet", "origin", "gh-pages")
+        git_in(repository, "fetch", "--quiet", "origin", "gh-pages")
         preview_check = subprocess.run(
             [
                 "git",
@@ -310,7 +378,7 @@ def main() -> int:
                 "-e",
                 f"origin/gh-pages:previews/pr-{pull_request}/provenance.json",
             ],
-            cwd=ROOT,
+            cwd=repository,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
@@ -334,7 +402,7 @@ def main() -> int:
             "publish",
             "build",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--candidate",
             str(candidate),
             "--scope",
@@ -353,7 +421,7 @@ def main() -> int:
             "publish",
             "pages",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--site",
             str(site),
             "--message",
@@ -369,7 +437,7 @@ def main() -> int:
             "build",
             "fetch",
             "--repo",
-            str(ROOT),
+            str(repository),
             "--out",
             str(generated),
         ).strip()
@@ -383,8 +451,10 @@ def main() -> int:
             "publish-b",
         )
 
-        git("fetch", "--quiet", "origin", "gh-pages")
-        stable = json.loads(git("show", "origin/gh-pages:provenance.json"))
+        git_in(repository, "fetch", "--quiet", "origin", "gh-pages")
+        stable = json.loads(
+            git_in(repository, "show", "origin/gh-pages:provenance.json")
+        )
         assert stable["source_commit"] == source_sha
         assert stable["build_commit"] == build_commit
 

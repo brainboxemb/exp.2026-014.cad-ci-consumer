@@ -62,3 +62,49 @@ Acceptance rules:
 
 This proves generic workflow credential setup without adding domain behavior to
 the acceptance repository.
+
+
+## Acceptance event policy
+
+The complete black-box suite runs automatically on `pull_request`.
+
+A normal `push` to `main` must not automatically repeat the same complete
+suite after an already-green pull request merge.
+
+`workflow_dispatch` provides an explicit way to run the same suite against
+main when a main-only condition genuinely requires verification.
+
+## Generated-branch isolation
+
+The durable build and Pages publication case must exercise the released tool's
+real generated-branch commands against an isolated Git remote created inside the
+runner.
+
+Acceptance must still prove:
+
+- `build` branch creation/update/fetch;
+- `gh-pages` stable or preview publication;
+- source freshness rejection;
+- PR cleanup behavior;
+- evidence fetched back from the generated build branch.
+
+The case must not push generated branches to the real
+`brainboxemb/tool.cad.ci.test` repository.
+
+The acceptance workflow therefore requires only read access to repository
+contents plus the existing package-read permission.
+
+
+## Tool 0.12.1 maintenance acceptance
+
+External acceptance of tool 0.12.1 must prove:
+
+- the exact tool commit is `0e7d8a876d95484a4c8870356f3b0ca67e5e493b`;
+- public item evidence schema is 2 and includes run timestamps;
+- public step evidence schema is 3 and includes run timestamps plus action
+  timestamps when the action executes;
+- timeout/failure actions expose action timestamps;
+- high-level reusable CI owns superseded-run cancellation;
+- lower-level reusable plan/run workflows do not own that high-level
+  concurrency group;
+- durable build preparation accepts current item evidence schema 2 while legacy stored schema 1 remains readable.
