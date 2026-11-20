@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.13.0** at
-  `360997f8de380a930a3ba3fcc7078bdc6f798c32`;
-- that tool pins `lib.py.cad.ci` **0.8.0** at
-  `e2056c0d5ac361f0d021e58e55025e02c5688acf`.
+- `tool.cad.ci` **0.13.1** at
+  `f357b70599e5b0a6cf39a25de6a70e43a04e85b1`;
+- that tool pins `lib.py.cad.ci` **0.8.1** at
+  `ab701bf9ef46892040f4593a74b16805b7187bea`.
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
@@ -40,8 +40,9 @@ revisions from a new clone with no build output or SCons cache: changing only
 item A executes only A and leaves independent sibling B untouched.
 
 `nested_item_case` proves root item templates, item-root-relative watch/input
-paths and path-derived nested IDs together. It changes one nested sibling in a
-fresh Git clone and verifies only that sibling is planned and built.
+paths, safe parent-relative item inputs and path-derived nested IDs together.
+A child-source change selects one sibling; a shared parent-contract change
+selects both children, each time from a fresh Git clone without build/cache.
 
 `dependency_case` proves cumulative dependency output, fan-out and
 `affected: direct` summary behaviour.
