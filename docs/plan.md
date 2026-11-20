@@ -8,49 +8,48 @@ must not contain generic CAD-CI implementation.
 
 ## Current status
 
-Released `tool.cad.ci` 0.14.1 is available at exact commit
-`18812d38e2390c23fd3c431cfde2ce9367bdfd40`.
+Released `tool.cad.ci 0.14.2` is available at exact commit
+`4c1016d594368146fb9c16602f01c158e85d9afb`.
 
-It retains the single-runner PR lifecycle from 0.14.0 and optimizes only fixed
-hosted-runner bootstrap work: shallow caller checkout, exact base fetch, direct
-Docker CLI GHCR login and lighter external dependency installation.
-
-The tool still pins released `lib.py.cad.ci` 0.8.3 at exact commit
-`e8e951ed7e50c4fa754cc158729faf2927cccb31`.
+That tool pins released `lib.py.cad.ci 0.8.4` and exposes explicit current
+processed-item membership to durable main updates.
 
 ## Current goal
 
-Complete #54 by externally accepting released tool.cad.ci 0.14.1 before Forge
+Complete #56 by externally accepting released tool.cad.ci 0.14.2 before Forge
 adopts it.
+
+Extend the existing `publish_case`; do not create a new implementation or
+acceptance family.
 
 ## Required proof
 
-- exact released 0.14.1 revision is pinned everywhere;
-- the complete reusable PR workflow remains one runner;
-- the caller checkout is shallow and fetches only the exact base SHA needed for
-  incremental selection;
-- docker/login-action is absent and direct Docker CLI login is present;
-- external dependency install uses --no-deps --no-compile;
-- no persistent Actions cache appears;
-- every existing black-box execution/selection/publication/logging case remains
-  green.
+- exact released 0.14.2 revision is pinned everywhere;
+- every existing black-box case remains green;
+- a durable main baseline with items A+B can be updated from a current
+  configuration containing only A;
+- deletion-only update removes B while preserving A bytes/evidence;
+- mixed update replaces A while removing B;
+- all behavior is observed through the released CLI;
+- no real repository generated branch is mutated.
 
 ## Execution order
 
-1. Pin exact released tool 0.14.1.
-2. Extend maintenance acceptance for the optimized reusable PR bootstrap.
+1. Pin exact released tool 0.14.2.
+2. Extend `publish_case` with removed-item main-update acceptance.
 3. Run the complete external suite.
 4. Merge only after every job is green.
-5. Only then update Forge's PR workflow pin.
-6. Repeat the same simple-box-only end-to-end measurement.
+5. Only then update Forge to exact tool 0.14.2 and retry its durable main
+   cleanup.
+6. Continue Forge Pages only after the stale aggregate is gone.
 
 ## Open issue assessment — 2026-11-20
 
 | Issue | Status | Assessment |
 | --- | --- | --- |
-| #54 Accept tool.cad.ci 0.14.1 PR bootstrap optimization | now | Required released-stack proof before the next Forge timing measurement. |
+| #56 Accept tool.cad.ci 0.14.2 removed-item durable main cleanup | now | Required released-stack proof before Forge can consume the generic cleanup fix. |
 
 ## Boundary
 
-This repository observes released behavior only. Generated-branch acceptance
-remains isolated from the repository's real build/gh-pages branches.
+This repository observes released behavior only. Removed-item membership,
+ownership and deletion remain library/tool behavior, never test helper logic.
