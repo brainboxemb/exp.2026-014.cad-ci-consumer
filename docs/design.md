@@ -69,3 +69,30 @@ The caller workflow grants `packages: read` and calls
 The test intentionally does not pull a real CAD/domain image. Package
 availability and image selection are consumer concerns; this repository proves
 only the generic authenticated-runner contract.
+
+
+## Acceptance-run ownership
+
+Pull-request CI is the authoritative automatic external acceptance result.
+
+The workflow deliberately has no automatic `push: main` trigger. A squash
+merge changes the commit SHA but does not justify re-running every black-box
+case against the same pinned external tool stack. `workflow_dispatch` keeps a
+manual main verification path for exceptional cases.
+
+## Isolated publication remote
+
+`publish_case` creates:
+
+```text
+output/publish_case/remote.git   bare remote
+output/publish_case/repository   working clone
+```
+
+The current event source commit is pushed from the checked-out acceptance
+repository into the isolated remote under the event source branch name. The
+working clone is then used as `--repo` for every released publication command.
+
+The tool therefore performs real Git branch publication, freshness checks,
+fetches and cleanup, but no write reaches the GitHub repository. This preserves
+the public publication contract without triggering GitHub Pages.
