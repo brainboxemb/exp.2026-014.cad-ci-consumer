@@ -1,0 +1,4 @@
+schema: 1
+items:
+  - items/model
+  - items/model/reference
