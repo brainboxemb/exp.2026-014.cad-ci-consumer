@@ -7,7 +7,7 @@
       "final_step": "build",
       "final_target_spec_digest": "703ebb52818e32825634248acadb0e8d583451615e666de5438ca1afb6fe15d7",
       "item_id": "publish-a",
-      "source_commit": "ba1b58d804f1ced434b29f8a15a5d5ef125c574d"
+      "source_commit": "cc187ec7018f9e71d9e222cd69374606479926af"
     },
     "items/b": {
       "engine": "scons",
@@ -16,10 +16,10 @@
       "final_step": "build",
       "final_target_spec_digest": "717c7a6ce8e2a284f602f0e06b5c683a375a695bcbeb29c5f826c922af047e4e",
       "item_id": "publish-b",
-      "source_commit": "ba1b58d804f1ced434b29f8a15a5d5ef125c574d"
+      "source_commit": "cc187ec7018f9e71d9e222cd69374606479926af"
     }
   },
   "schema": 1,
   "scope": "main",
-  "source_commit": "ba1b58d804f1ced434b29f8a15a5d5ef125c574d"
+  "source_commit": "cc187ec7018f9e71d9e222cd69374606479926af"
 }
