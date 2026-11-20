@@ -10,8 +10,8 @@ must not contain generic CAD-CI implementation.
 
 Complete one combined maintenance/acceptance batch for #34, #35 and #36.
 
-The exact external target is released `tool.cad.ci 0.12.0` at
-`05af21546ea71907cd9db4b56f5d5ccd644c0170`, which pins released `lib.py.cad.ci 0.7.0`.
+The exact external target is released `tool.cad.ci 0.12.1` at
+`0e7d8a876d95484a4c8870356f3b0ca67e5e493b`, which pins released `lib.py.cad.ci 0.7.1`.
 
 The same PR also makes the acceptance repository cheaper and cleaner:
 
@@ -24,7 +24,7 @@ The same PR also makes the acceptance repository cheaper and cleaner:
 ## Execution order
 
 1. Pin exact released tool 0.12.0 in both manifest and reusable workflow.
-2. Accept library 0.7.0 evidence schemas/timestamps from outside.
+2. Accept library 0.7.1 evidence schemas/timestamps and build-store compatibility from outside.
 3. Accept high-level concurrency and lower-level independence from outside.
 4. Run all existing black-box behavior, including publication, against the
    exact released stack.
@@ -39,7 +39,7 @@ The same PR also makes the acceptance repository cheaper and cleaner:
 | --- | --- | --- |
 | #34 Stop publishing an unused repository Pages site | now | Preserve publication acceptance, but direct generated branches to an isolated local remote instead of the real repository. |
 | #35 Avoid running the full external acceptance suite twice for one change | now | Pull-request acceptance is authoritative; workflow_dispatch remains the explicit main verification path. |
-| #36 Accept tool.cad.ci 0.12.0 maintenance release | now | Exact released stack accepted in this same maintenance PR so only one complete suite is required. |
+| #36 Accept tool.cad.ci 0.12.1 maintenance release | now | Exact released stack accepted in this same maintenance PR so only one complete suite is required. |
 
 ## Boundary
 
