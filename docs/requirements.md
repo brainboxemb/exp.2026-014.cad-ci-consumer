@@ -93,3 +93,17 @@ The case must not push generated branches to the real
 
 The acceptance workflow therefore requires only read access to repository
 contents plus the existing package-read permission.
+
+
+## Tool 0.12.0 maintenance acceptance
+
+External acceptance of tool 0.12.0 must prove:
+
+- the exact tool commit is `05af21546ea71907cd9db4b56f5d5ccd644c0170`;
+- public item evidence schema is 2 and includes run timestamps;
+- public step evidence schema is 3 and includes run timestamps plus action
+  timestamps when the action executes;
+- timeout/failure actions expose action timestamps;
+- high-level reusable CI owns superseded-run cancellation;
+- lower-level reusable plan/run workflows do not own that high-level
+  concurrency group.
