@@ -62,3 +62,34 @@ Acceptance rules:
 
 This proves generic workflow credential setup without adding domain behavior to
 the acceptance repository.
+
+
+## Acceptance event policy
+
+The complete black-box suite runs automatically on `pull_request`.
+
+A normal `push` to `main` must not automatically repeat the same complete
+suite after an already-green pull request merge.
+
+`workflow_dispatch` provides an explicit way to run the same suite against
+main when a main-only condition genuinely requires verification.
+
+## Generated-branch isolation
+
+The durable build and Pages publication case must exercise the released tool's
+real generated-branch commands against an isolated Git remote created inside the
+runner.
+
+Acceptance must still prove:
+
+- `build` branch creation/update/fetch;
+- `gh-pages` stable or preview publication;
+- source freshness rejection;
+- PR cleanup behavior;
+- evidence fetched back from the generated build branch.
+
+The case must not push generated branches to the real
+`brainboxemb/tool.cad.ci.test` repository.
+
+The acceptance workflow therefore requires only read access to repository
+contents plus the existing package-read permission.
