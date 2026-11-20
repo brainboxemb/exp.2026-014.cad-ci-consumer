@@ -1,0 +1,23 @@
+schema: 1
+
+templates:
+  reference:
+    kind: reference
+    watch:
+      item:
+        - "**"
+      repo:
+        - shared.txt
+    steps:
+      - id: build
+        inputs:
+          item:
+            - model.py
+          repo:
+            - shared.txt
+        run: [python, model.py]
+        outputs:
+          - result.txt
+
+items:
+  - examples/*/*
