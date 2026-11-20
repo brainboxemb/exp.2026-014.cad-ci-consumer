@@ -6,6 +6,7 @@ templates:
     watch:
       item:
         - "**"
+        - ../verification/reference_geometry.json
       repo:
         - shared.txt
     steps:
@@ -13,6 +14,7 @@ templates:
         inputs:
           item:
             - model.py
+            - ../verification/reference_geometry.json
           repo:
             - shared.txt
         run: [python, model.py]
