@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@bbdd473638d64e01acab69722092b2a12f99b84d
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@5bca68eb109a69e3a05e7711daf394926ee0e7d4
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
@@ -19,7 +19,7 @@ jobs:
 
   no_output:
     needs: consumer
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@bbdd473638d64e01acab69722092b2a12f99b84d
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@5bca68eb109a69e3a05e7711daf394926ee0e7d4
     with:
       upload_build: true
       build_artifact_name: cad-ci-empty-acceptance
@@ -115,6 +115,7 @@ jobs:
           run_workflow = (root / "reusable-run.yml").read_text(encoding="utf-8")
           high_workflow = (root / "reusable-ci.yml").read_text(encoding="utf-8")
           plan_workflow = (root / "reusable-plan.yml").read_text(encoding="utf-8")
+          pr_workflow = (root / "reusable-pr.yml").read_text(encoding="utf-8")
 
           forbidden = (
               "actions/cache/restore",
@@ -145,6 +146,32 @@ jobs:
           ):
               if "concurrency:" in text:
                   raise SystemExit(f"lower-level workflow owns concurrency: {name}")
+
+          required_pr = (
+              "runs-on: ubuntu-latest",
+              "Checkout called tool revision",
+              "Checkout pinned CAD CI library source",
+              "PYTHONPATH:",
+              "library-revision",
+              "python -m cad_ci_tool build prepare-pr",
+              "python -m cad_ci_tool publish build",
+              "python -m cad_ci_tool publish build-cleanup",
+              "cancel-in-progress: true",
+          )
+          for value in required_pr:
+              if value not in pr_workflow:
+                  raise SystemExit(f"missing reusable-pr contract: {value}")
+
+          if pr_workflow.count("runs-on: ubuntu-latest") != 1:
+              raise SystemExit("reusable-pr must use exactly one runner job")
+          for value in (
+              "actions/upload-artifact",
+              "actions/download-artifact",
+              "pip install -e",
+              "pip install .cache/cad-ci-tool-source",
+          ):
+              if value in pr_workflow:
+                  raise SystemExit(f"forbidden reusable-pr bootstrap: {value}")
           PY
       - name: Install exact released tool stack
         run: python -m pip install -e ext/cad-ci
