@@ -133,10 +133,6 @@ jobs:
           for value in (
               "concurrency:",
               "cancel-in-progress: true",
-              "Fetch exact PR base commit",
-              "git fetch --no-tags --depth=1 origin",
-              "--no-deps --no-compile",
-              "docker login ghcr.io",
               "github.repository",
               "github.workflow",
               "github.event.pull_request.number || github.ref",
@@ -161,6 +157,10 @@ jobs:
               "python -m cad_ci_tool publish build",
               "python -m cad_ci_tool publish build-cleanup",
               "cancel-in-progress: true",
+              "Fetch exact PR base commit",
+              "git fetch --no-tags --depth=1 origin",
+              "--no-deps --no-compile",
+              "docker login ghcr.io",
           )
           for value in required_pr:
               if value not in pr_workflow:
