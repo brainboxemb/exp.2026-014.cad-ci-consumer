@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.11.0** at
-  `96d4c9d6076b7452933c048ace65cf2b0a159d64`;
-- that tool pins `lib.py.cad.ci` **0.6.0** at
-  `dac8c5b5e1147a401730fda31f9bf9de2278c4ee`.
+- `tool.cad.ci` **0.12.1** at
+  `0e7d8a876d95484a4c8870356f3b0ca67e5e493b`;
+- that tool pins `lib.py.cad.ci` **0.7.1** at
+  `c031f5dce3a4b0b207d8ce24716b5e11cdd12df2`.
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
