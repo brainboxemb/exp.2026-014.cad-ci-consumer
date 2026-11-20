@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.10.0** at
-  `c60bf64a393dff33440d22e9e9347cbbaba71c4b`;
-- that tool pins `lib.py.cad.ci` **0.5.0** at
-  `345794521fe162eb1908e1e8f38a6eabb02c8290`.
+- `tool.cad.ci` **0.11.0** at
+  `96d4c9d6076b7452933c048ace65cf2b0a159d64`;
+- that tool pins `lib.py.cad.ci` **0.6.0** at
+  `dac8c5b5e1147a401730fda31f9bf9de2278c4ee`.
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
@@ -20,6 +20,7 @@ simple_case1/
 more_complex_case2/
 dependency_case/
 partial_rerun_case/
+process_case/
 directory_output_case/
 timeout_case/
 publish_case/
@@ -37,6 +38,10 @@ SCons target freshness.
 
 `partial_rerun_case` proves the released meanings of exact `--step`,
 `--until` and `--from`, including complete-item evidence after partial runs.
+
+`process_case` proves omitted and explicit `process: true` items participate in
+normal full planning/execution, while `process: false` is excluded and rejects
+explicit execution.
 
 `directory_output_case` proves complete directory output, empty directories,
 local repair and fresh-runner CacheDir restore.
@@ -57,8 +62,8 @@ command and override the inherited caller value.
 
 The same real consumer command also checks that Docker already contains a
 `ghcr.io` authentication entry. It checks only the registry-key presence and
-never reads, decodes or writes the credential value. This proves released
-tool.cad.ci 0.10.0 performs generic GHCR login before consumer CAD-CI commands.
+never reads, decodes or writes the credential value. This proves the released reusable workflow performs generic GHCR login before
+consumer CAD-CI commands.
 
 The downstream job also verifies generated output, item evidence and step
 evidence with public `output_state` terminology.

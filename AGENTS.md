@@ -21,6 +21,7 @@ Current accepted structure:
 - `more_complex_case2`
 - `dependency_case`
 - `partial_rerun_case`
+- `process_case`
 - `directory_output_case`
 - `timeout_case`
 - `publish_case`
