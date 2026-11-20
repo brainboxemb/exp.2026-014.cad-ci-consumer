@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@96d4c9d6076b7452933c048ace65cf2b0a159d64
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@05af21546ea71907cd9db4b56f5d5ccd644c0170
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
@@ -55,14 +55,19 @@ jobs:
           if not item_evidence.is_file():
               raise SystemExit(f"missing item evidence: {item_evidence}")
           item = json.loads(item_evidence.read_text())
-          if item.get("status") != "pass":
-              raise SystemExit(f"item evidence is not passing: {item}")
+          if item.get("schema") != 2 or item.get("status") != "pass":
+              raise SystemExit(f"unexpected item evidence: {item}")
+          if not item.get("run_started_at") or not item.get("run_finished_at"):
+              raise SystemExit(f"missing item run timestamps: {item}")
 
           if not step_evidence.is_file():
               raise SystemExit(f"missing step evidence: {step_evidence}")
           step = json.loads(step_evidence.read_text())
-          if step.get("schema") != 2:
+          if step.get("schema") != 3:
               raise SystemExit(f"unexpected step evidence schema: {step}")
+          for key in ("run_started_at", "run_finished_at", "started_at", "finished_at"):
+              if not step.get(key):
+                  raise SystemExit(f"missing step timing field {key}: {step}")
           if step.get("output_state") not in {"UNCHANGED", "RESTORED", "REPAIRED"}:
               raise SystemExit(f"missing public output_state: {step}")
           obsolete_term = "material" + "ization"
@@ -87,26 +92,45 @@ jobs:
           python-version: '3.12'
       - name: Bootstrap exact released tool
         run: python scripts/bootstrap.py
-      - name: Verify released workflow has no persistent cache transport
+      - name: Verify released reusable workflow maintenance contract
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          workflow = Path("ext/cad-ci/.github/workflows/reusable-run.yml").read_text(
-              encoding="utf-8"
-          )
+          root = Path("ext/cad-ci/.github/workflows")
+          run_workflow = (root / "reusable-run.yml").read_text(encoding="utf-8")
+          high_workflow = (root / "reusable-ci.yml").read_text(encoding="utf-8")
+          plan_workflow = (root / "reusable-plan.yml").read_text(encoding="utf-8")
+
           forbidden = (
               "actions/cache/restore",
               "actions/cache/save",
               "cache-primary-key",
               "restore-keys:",
           )
-          found = [value for value in forbidden if value in workflow]
+          found = [value for value in forbidden if value in run_workflow]
           if found:
               raise SystemExit(
                   "released reusable workflow still contains persistent cache "
                   "transport: " + ", ".join(found)
               )
+
+          for value in (
+              "concurrency:",
+              "cancel-in-progress: true",
+              "github.repository",
+              "github.workflow",
+              "github.event.pull_request.number || github.ref",
+          ):
+              if value not in high_workflow:
+                  raise SystemExit(f"missing high-level concurrency contract: {value}")
+
+          for name, text in (
+              ("reusable-plan.yml", plan_workflow),
+              ("reusable-run.yml", run_workflow),
+          ):
+              if "concurrency:" in text:
+                  raise SystemExit(f"lower-level workflow owns concurrency: {name}")
           PY
       - name: Install exact released tool stack
         run: python -m pip install -e ext/cad-ci
