@@ -32,6 +32,28 @@ def main() -> int:
     assert (repo / "build/explicit_active/.cad-ci/item.json").is_file()
     assert not (repo / "build/disabled").exists()
 
+    prepared = repo / "prepared-main"
+    run_tool(
+        "build",
+        "prepare-main",
+        "--repo",
+        str(repo),
+        "--candidate-root",
+        str(repo / "build"),
+        "--out",
+        str(prepared),
+        "--source-commit",
+        "process-case-main",
+    )
+    assert (prepared / "default_active/.cad-ci/item.json").is_file()
+    assert (prepared / "explicit_active/.cad-ci/item.json").is_file()
+    assert not (prepared / "disabled").exists()
+    manifest = json.loads((prepared / "build.json").read_text(encoding="utf-8"))
+    assert set(manifest["items"]) == {
+        "default_active",
+        "explicit_active",
+    }, manifest
+
     explicit = run_tool(
         "run",
         "--repo",
