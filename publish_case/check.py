@@ -23,7 +23,7 @@ def git(*args: str) -> str:
 
     return subprocess.check_output(
         ["git", *args],
-        cwd=repository,
+        cwd=ROOT,
         text=True,
     ).strip()
 
@@ -62,7 +62,7 @@ def isolated_repository(
             str(remote),
             f"{source_sha}:refs/heads/{source_ref}",
         ],
-        cwd=repository,
+        cwd=ROOT,
         check=True,
     )
     subprocess.run(
@@ -450,7 +450,9 @@ def main() -> int:
         )
 
         git_in(repository, "fetch", "--quiet", "origin", "gh-pages")
-        stable = json.loads(git("show", "origin/gh-pages:provenance.json"))
+        stable = json.loads(
+            git_in(repository, "show", "origin/gh-pages:provenance.json")
+        )
         assert stable["source_commit"] == source_sha
         assert stable["build_commit"] == build_commit
 
