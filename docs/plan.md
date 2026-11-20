@@ -31,8 +31,7 @@ participation through the existing thin CLI/workflow stack.
 | Issue | Status | Assessment |
 | --- | --- | --- |
 | #32 Externally test tool.cad.ci 0.11.0 process selection | now | Required released-stack proof before Forge may use staged item processing. |
-
-No other open implementation issues exist at this snapshot.
+| #34 Stop publishing an unused repository Pages site | later | Repository/CI housekeeping. Keep separate from #32 and preserve `publish_case` coverage of released Pages behavior. |
 
 ## Released state
 
