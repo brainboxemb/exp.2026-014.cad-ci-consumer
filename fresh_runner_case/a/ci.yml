@@ -1,0 +1,7 @@
+id: a
+watch: [a/**]
+steps:
+  - id: build
+    inputs: [a/input.txt, a/run.py]
+    run: [python, run.py]
+    outputs: [result.txt]
