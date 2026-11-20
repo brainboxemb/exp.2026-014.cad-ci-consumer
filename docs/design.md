@@ -106,3 +106,31 @@ evidence from the released stack. It does not import or reproduce timing logic.
 Concurrency acceptance inspects the exact released workflow files after
 bootstrap: only the high-level reusable workflow may own the normal-consumer
 concurrency group.
+
+
+## Removed-item publication acceptance
+
+`publish_case` reuses its existing two-item synthetic consumer.
+
+It first prepares a normal durable main baseline for A+B. It then creates a
+disposable source copy whose current configuration contains only A by removing
+the source directory for B.
+
+Two released CLI calls are exercised independently from the same baseline:
+
+```text
+deletion-only:
+  update-main --changed items/b/ci.yml
+  current config: A
+  selected replacements: none
+  expected durable result: A only, A bytes unchanged
+
+mixed:
+  update-main --changed items/a/run.py
+  current config: A
+  selected replacements: A
+  expected durable result: A replacement only
+```
+
+The acceptance code performs only source-fixture setup and assertions. Durable
+membership/deletion is performed entirely by the released stack.

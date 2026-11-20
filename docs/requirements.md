@@ -108,3 +108,21 @@ External acceptance of tool 0.12.1 must prove:
 - lower-level reusable plan/run workflows do not own that high-level
   concurrency group;
 - durable build preparation accepts current item evidence schema 2 while legacy stored schema 1 remains readable.
+
+
+## Removed durable main item acceptance
+
+The existing publication acceptance must prove the released stack distinguishes
+an unselected current item from an item removed from current configuration.
+
+Starting from a durable main baseline with two configured items A and B:
+
+- a disposable current consumer configuration removes B;
+- a deletion-only `build update-main` selects no replacement item, keeps A
+  current and removes B from output and manifest;
+- A's owned result/evidence bytes remain unchanged in that deletion-only update;
+- a separate mixed update selects/replaces A while also removing B;
+- the test invokes only released public CLI commands and inspects generated
+  output;
+- no test helper compares manifests to decide deletion or removes durable output
+  on behalf of CAD-CI.

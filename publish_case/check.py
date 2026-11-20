@@ -206,6 +206,88 @@ def local_build_store_checks(out: Path, source_sha: str) -> None:
     assert (resolved / "items/a/result.txt").read_text() == "a\n"
     assert (resolved / "items/b/result.txt").read_text() == "b\n"
 
+    removed_item_build_store_checks(out, source_sha, local_main)
+
+
+def removed_item_build_store_checks(
+    out: Path,
+    source_sha: str,
+    local_main: Path,
+) -> None:
+    """Prove removed durable items through the released update-main CLI."""
+
+    current_repo = out / "removed-item-current"
+    shutil.copytree(
+        CASE,
+        current_repo,
+        ignore=shutil.ignore_patterns(
+            "build",
+            ".cache",
+            "__pycache__",
+        ),
+    )
+    shutil.rmtree(current_repo / "items" / "b")
+
+    a_result_before = (
+        local_main / "items/a/result.txt"
+    ).read_bytes()
+    a_evidence_before = (
+        local_main / "items/a/.cad-ci/item.json"
+    ).read_bytes()
+
+    deletion_only = out / "removed-item-deletion-only"
+    run_tool(
+        "build",
+        "update-main",
+        "--repo",
+        str(current_repo),
+        "--candidate-root",
+        str(CASE / "build"),
+        "--main",
+        str(local_main),
+        "--out",
+        str(deletion_only),
+        "--source-commit",
+        source_sha,
+        "--changed",
+        "items/b/ci.yml",
+    )
+    assert (
+        deletion_only / "items/a/result.txt"
+    ).read_bytes() == a_result_before
+    assert (
+        deletion_only / "items/a/.cad-ci/item.json"
+    ).read_bytes() == a_evidence_before
+    assert not (deletion_only / "items/b").exists()
+    deletion_manifest = read_json(deletion_only / "build.json")
+    assert tuple(deletion_manifest["items"]) == ("items/a",)
+
+    mixed = out / "removed-item-mixed"
+    run_tool(
+        "build",
+        "update-main",
+        "--repo",
+        str(current_repo),
+        "--candidate-root",
+        str(CASE / "build"),
+        "--main",
+        str(local_main),
+        "--out",
+        str(mixed),
+        "--source-commit",
+        source_sha,
+        "--changed",
+        "items/a/run.py",
+    )
+    assert (mixed / "items/a/result.txt").read_text() == "a\n"
+    assert not (mixed / "items/b").exists()
+    mixed_manifest = read_json(mixed / "build.json")
+    assert tuple(mixed_manifest["items"]) == ("items/a",)
+    assert (
+        mixed_manifest["items"]["items/a"]["source_commit"]
+        == source_sha
+    )
+
 
 def main() -> int:
     event_name, source_sha, source_ref, pull_request = source_event()
