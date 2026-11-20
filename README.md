@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.13.1** at
-  `f357b70599e5b0a6cf39a25de6a70e43a04e85b1`;
-- that tool pins `lib.py.cad.ci` **0.8.1** at
-  `ab701bf9ef46892040f4593a74b16805b7187bea`.
+- `tool.cad.ci` **0.13.2** at
+  `8d4c990cb22b794e268d361f09bc2757d15e1c94`;
+- that tool pins `lib.py.cad.ci` **0.8.2** at
+  `d645b65281064f69f175bb645c6c956f72f3b446`.
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
@@ -20,6 +20,7 @@ simple_case1/
 more_complex_case2/
 fresh_runner_case/
 nested_item_case/
+nested_publish_case/
 dependency_case/
 partial_rerun_case/
 process_case/
@@ -43,6 +44,10 @@ item A executes only A and leaves independent sibling B untouched.
 paths, safe parent-relative item inputs and path-derived nested IDs together.
 A child-source change selects one sibling; a shared parent-contract change
 selects both children, each time from a fresh Git clone without build/cache.
+
+`nested_publish_case` proves durable ownership for a parent item and nested
+child item. Complete/sparse scopes can contain both, while parent-only and
+child-only main updates preserve the unselected neighbor's output and evidence.
 
 `dependency_case` proves cumulative dependency output, fan-out and
 `affected: direct` summary behaviour.
