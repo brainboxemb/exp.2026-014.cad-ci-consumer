@@ -18,6 +18,7 @@ the outside.
 ```text
 simple_case1/
 more_complex_case2/
+fresh_runner_case/
 dependency_case/
 partial_rerun_case/
 process_case/
@@ -32,6 +33,10 @@ invalidation and step-input membership changes.
 
 `more_complex_case2` proves coarse Git changed-item selection separately from
 SCons target freshness.
+
+`fresh_runner_case` proves the hosted-runner path against exact Git base/head
+revisions from a new clone with no build output or SCons cache: changing only
+item A executes only A and leaves independent sibling B untouched.
 
 `dependency_case` proves cumulative dependency output, fan-out and
 `affected: direct` summary behaviour.
