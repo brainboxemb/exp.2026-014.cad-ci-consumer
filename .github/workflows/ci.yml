@@ -154,6 +154,8 @@ jobs:
         run: python more_complex_case2/check.py
       - name: Fresh runner Git-diff selection
         run: python fresh_runner_case/check.py
+      - name: Nested local item configuration
+        run: python nested_item_case/check.py
       - name: Dependencies and fan-out
         run: python dependency_case/check.py
       - name: Partial reruns
