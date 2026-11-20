@@ -18,6 +18,7 @@ jobs:
       build_artifact_name: cad-ci-workflow-acceptance
 
   no_output:
+    needs: consumer
     uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@8bab91eaf8554533e5f63620421ed9554f66eb91
     with:
       upload_build: true
