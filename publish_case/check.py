@@ -289,6 +289,144 @@ def removed_item_build_store_checks(
     )
 
 
+def named_scope_publication_checks(
+    out: Path,
+    repository: Path,
+    source_sha: str,
+    source_ref: str,
+) -> None:
+    """Prove released named build/Page scopes preserve every sibling."""
+
+    def prepare_scope(name: str | None, stamp: str) -> Path:
+        candidate = out / f"scope-{stamp}"
+        args = [
+            "build",
+            "prepare-main" if name is None else "prepare-named",
+            "--repo",
+            str(CASE),
+            "--candidate-root",
+            str(CASE / "build"),
+            "--out",
+            str(candidate),
+            "--source-commit",
+            stamp,
+        ]
+        if name is not None:
+            args.extend(["--name", name])
+        run_tool(*args)
+        return candidate
+
+    def publish_scope(name: str | None, stamp: str) -> str:
+        candidate = prepare_scope(name, stamp)
+        args = [
+            "publish",
+            "build",
+            "--repo",
+            str(repository),
+            "--candidate",
+            str(candidate),
+            "--scope",
+            "main" if name is None else "named",
+            "--message",
+            f"publish {stamp}",
+            "--source-ref",
+            source_ref,
+            "--expected-source",
+            source_sha,
+        ]
+        if name is not None:
+            args.extend(["--scope-name", name])
+        return run_tool(*args).strip()
+
+    publish_scope(None, "stable-build-1")
+    publish_scope("dev_a", "dev-a-build-1")
+    publish_scope("dev_b", "dev-b-build-1")
+    publish_scope("dev_a", "dev-a-build-2")
+
+    generated = out / "named-generated-build"
+    run_tool(
+        "build",
+        "fetch",
+        "--repo",
+        str(repository),
+        "--out",
+        str(generated),
+    )
+    assert read_json(generated / "main/build.json")["source_commit"] == "stable-build-1"
+    assert read_json(generated / "dev_a/build.json")["source_commit"] == "dev-a-build-2"
+    assert read_json(generated / "dev_b/build.json")["source_commit"] == "dev-b-build-1"
+
+    def publish_site(
+        label: str,
+        *,
+        name: str | None = None,
+        preserve: tuple[str, ...] = (),
+    ) -> None:
+        site = out / f"site-{label}"
+        build_site(site, label, f"build-{label}")
+        args = [
+            "publish",
+            "pages",
+            "--repo",
+            str(repository),
+            "--site",
+            str(site),
+            "--message",
+            f"pages {label}",
+            "--source-ref",
+            source_ref,
+            "--expected-source",
+            source_sha,
+        ]
+        if name is not None:
+            args.extend(["--name", name])
+        for subtree in preserve:
+            args.extend(["--preserve-subtree", subtree])
+        run_tool(*args)
+
+    publish_site("stable-page-1")
+    publish_site("dev-a-page-1", name="dev_a")
+    publish_site("dev-b-page-1", name="dev_b")
+    publish_site("dev-a-page-2", name="dev_a")
+    publish_site(
+        "stable-page-2",
+        preserve=("dev_a", "dev_b"),
+    )
+
+    git_in(repository, "fetch", "--quiet", "origin", "gh-pages")
+    stable = json.loads(
+        git_in(repository, "show", "origin/gh-pages:provenance.json")
+    )
+    dev_a = json.loads(
+        git_in(repository, "show", "origin/gh-pages:dev_a/provenance.json")
+    )
+    dev_b = json.loads(
+        git_in(repository, "show", "origin/gh-pages:dev_b/provenance.json")
+    )
+    assert stable["source_commit"] == "stable-page-2"
+    assert dev_a["source_commit"] == "dev-a-page-2"
+    assert dev_b["source_commit"] == "dev-b-page-1"
+
+    unsafe = run_tool(
+        "publish",
+        "pages",
+        "--repo",
+        str(repository),
+        "--site",
+        str(out / "site-dev-a-page-2"),
+        "--name",
+        "../escape",
+        "--message",
+        "reject unsafe subtree",
+        "--source-ref",
+        source_ref,
+        "--expected-source",
+        source_sha,
+        expect=2,
+    )
+    assert "unsafe" in unsafe.lower()
+
+
 def main() -> int:
     event_name, source_sha, source_ref, pull_request = source_event()
     if git("rev-parse", "HEAD") != source_sha:
@@ -325,6 +463,13 @@ def main() -> int:
         expect=2,
     )
     assert "moved" in stale or "expected" in stale
+
+    named_scope_publication_checks(
+        out,
+        repository,
+        source_sha,
+        source_ref,
+    )
 
     if event_name == "pull_request":
         candidate = out / "pr"

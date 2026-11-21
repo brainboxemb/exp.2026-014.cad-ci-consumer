@@ -2,4 +2,4 @@ repositories:
   cad-ci:
     type: git
     url: https://github.com/brainboxemb/tool.cad.ci.git
-    version: 9f37be0af5c4076f676b6407857c5905e11a47d6
+    version: 4c6bb8b35009ef5008bd99134cf84b59fddc0b8a

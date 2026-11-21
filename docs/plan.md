@@ -8,49 +8,53 @@ must not contain generic CAD-CI implementation.
 
 ## Current status
 
-Released `tool.cad.ci 0.15.0` is available at exact commit
-`9f37be0af5c4076f676b6407857c5905e11a47d6`.
+Generic named complete build scopes and named Pages subtrees are released in:
 
-That tool pins released `lib.py.cad.ci 0.8.4` at
-`4e033fd17e911b3feb92b1a34433b884ca788ab6` and adds the root same-runner composite action required by Forge
-#558.
+- `lib.py.cad.ci 0.9.2` at
+  `3f688243f4ee65b1fa42f82adde5344fe5101775`;
+- `tool.cad.ci 0.16.1` at
+  `4c6bb8b35009ef5008bd99134cf84b59fddc0b8a`.
+
+The first #60 acceptance run against 0.16.0 correctly exposed a library
+self-compatibility defect: current SCons output used engine schema 2 while the
+durable build store still expected schema 1. That was fixed in
+`lib.py.cad.ci 0.9.2` and repinned by `tool.cad.ci 0.16.1`.
+
+The named-scope acceptance itself remains unchanged.
 
 ## Current goal
 
-Complete #58 by externally accepting the released 0.15.0 composite action
-before Forge adopts it.
+Complete #60 against exact released `tool.cad.ci 0.16.1`.
+
+The black-box suite must prove that one released stack safely maintains
+multiple independent complete build scopes and Pages subtrees before Forge
+#572 creates `dev_cad` and `dev_ci`.
 
 ## Required proof
 
-- exact released 0.15.0 revision is pinned everywhere;
-- every existing CLI/reusable-workflow black-box case remains green;
-- a real external job consumes `brainboxemb/tool.cad.ci@9f37be0af5c4076f676b6407857c5905e11a47d6`;
-- the action executes the real `workflow_case`;
-- no second checkout/setup/install occurs after the action;
-- the next step imports `cad_ci_tool` from `CAD_CI_TOOL_ROOT`;
-- the next step imports `cad_ci` from `CAD_CI_LIB_ROOT`;
-- action output reports exact library revision `4e033fd17e911b3feb92b1a34433b884ca788ab6`;
-- a real `python -m cad_ci_tool plan` succeeds on that same runner;
-- action-produced build output and evidence remain available;
-- no generic behavior is implemented in this repository.
+- publish complete `main`, `dev_a` and `dev_b` build scopes;
+- update `dev_a` and preserve `main` + `dev_b`;
+- publish stable Pages plus `dev_a` and `dev_b` subtrees;
+- replace `dev_a` while preserving stable root + `dev_b`;
+- replace stable root while preserving both named subtrees;
+- reject unsafe names;
+- use only the exact released public tool/library surface;
+- keep publication tests isolated from this repository's real generated branches;
+- keep the existing same-runner and reusable-workflow acceptance green.
 
 ## Execution order
 
-1. [#58] Pin exact released tool.cad.ci 0.15.0.
-2. [#58] Add the same-runner black-box job.
-3. Run the complete external suite.
-4. Merge only after every job is green.
-5. Close #58 after the green merge.
-6. Only then migrate Forge #558 to exact tool.cad.ci 0.15.0.
+1. [#60, now] Pin exact released tool.cad.ci 0.16.1.
+2. [#60] Run the complete black-box suite including named-scope isolation.
+3. Merge only when all released-stack paths are green.
+4. [Forge #572] Adopt the accepted stack and introduce `dev_cad` / `dev_ci`.
 
 ## Open issue assessment — 2026-11-21
 
 | Issue | Status | Assessment |
 | --- | --- | --- |
-| #58 Accept tool.cad.ci 0.15.0 same-runner composite action | now | Required external proof before Forge removes its artifact and extra-runner main publication path. |
+| #60 Accept released named build and Pages scopes | now | 0.9.2/0.16.1 fix the schema blocker found by the first run; rerun the unchanged named-scope isolation proof now. |
 
-## Boundary
+Immediate chain:
 
-This repository observes released behavior only. Bootstrap, selection, SCons
-execution, durable-store and publication behavior remain released tool/library
-behavior, never test helper logic.
+`acceptance #60 -> Forge #572`.
