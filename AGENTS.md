@@ -72,10 +72,13 @@ tested through the released tool, not reimplemented in the case.
 
 ## Workflow
 
-The workflow proves both public consumption paths:
+The workflow proves all released public consumption paths:
 - direct CLI cases use the exact commit in `dependencies.repos`;
 - `workflow_case` calls the single high-level `reusable-ci.yml` workflow from
-  that same released commit and verifies its handed-off build output/evidence.
+  that same released commit and verifies its handed-off build output/evidence;
+- `same_runner` consumes the root composite action from that exact released
+  commit and proves a following step can reuse the exposed CLI stack on the
+  same runner without another bootstrap.
 
 Do not rebuild generic plan/run/cache orchestration in this repository. The
 caller may provide domain-neutral inputs and inspect generic output/evidence,
