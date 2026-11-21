@@ -4,10 +4,10 @@ Permanent black-box acceptance repository for the released generic CAD CI stack.
 
 This repository currently pins:
 
-- `tool.cad.ci` **0.13.2** at
-  `8d4c990cb22b794e268d361f09bc2757d15e1c94`;
-- that tool pins `lib.py.cad.ci` **0.8.2** at
-  `d645b65281064f69f175bb645c6c956f72f3b446`.
+- `tool.cad.ci` **0.15.0** at
+  `9f37be0af5c4076f676b6407857c5905e11a47d6`;
+- that tool pins `lib.py.cad.ci` **0.8.4** at
+  `4e033fd17e911b3feb92b1a34433b884ca788ab6`;
 
 No Forge, SolidCraft or real CAD behaviour belongs here. Each top-level case is
 a small independent consumer repository that exercises the released tool from
@@ -88,9 +88,11 @@ evidence with public `output_state` terminology.
 
 `dependencies.repos` stores one exact tool commit for the CLI acceptance cases.
 `scripts/bootstrap.py` checks that commit out under `ext/cad-ci`.
-The workflow calls only the high-level `reusable-ci.yml` from that exact
-released commit. The high-level call uploads its generated `build/` tree for a
-downstream acceptance job; the consumer does not rebuild generic plan/run orchestration locally.
+The workflow calls the high-level `reusable-ci.yml` and the root composite
+action from that exact released commit. The reusable workflow path still
+uploads its generated `build/` tree for a downstream acceptance job. The
+same-runner action path deliberately keeps its generated `build/` tree and
+exact CLI source stack in the caller job instead of transporting them.
 
 Most cases copy their immutable template to `output/cases/<name>` before
 mutating inputs. The publication case runs against its own source tree because
@@ -108,3 +110,21 @@ this acceptance repository.
 
 Forge and CAD may update their tool pin only after this exact released stack is
 green here.
+
+
+## Same-runner action acceptance
+
+The `same_runner` job consumes
+`brainboxemb/tool.cad.ci@9f37be0af5c4076f676b6407857c5905e11a47d6` directly as a composite action.
+
+The action runs the real root `workflow_case`. The immediately following step
+does not bootstrap CAD-CI again. It verifies that:
+
+- `cad_ci_tool` imports from `CAD_CI_TOOL_ROOT`;
+- `cad_ci` imports from `CAD_CI_LIB_ROOT`;
+- the action reports the exact pinned library commit;
+- `python -m cad_ci_tool plan` works on the same runner;
+- the action-produced build output and public evidence are still present.
+
+This is the external proof required before Forge can replace its multi-runner
+main publication path with tool.cad.ci 0.15.0.

@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   consumer:
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@4c1016d594368146fb9c16602f01c158e85d9afb
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@9f37be0af5c4076f676b6407857c5905e11a47d6
     with:
       full_run: true
       environment_json: '{"ACCEPTANCE_MARKER":"reusable-workflow"}'
@@ -19,10 +19,89 @@ jobs:
 
   no_output:
     needs: consumer
-    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@4c1016d594368146fb9c16602f01c158e85d9afb
+    uses: brainboxemb/tool.cad.ci/.github/workflows/reusable-ci.yml@9f37be0af5c4076f676b6407857c5905e11a47d6
     with:
       upload_build: true
       build_artifact_name: cad-ci-empty-acceptance
+
+
+  same_runner:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run exact released same-runner action
+        id: cad_ci
+        uses: brainboxemb/tool.cad.ci@9f37be0af5c4076f676b6407857c5905e11a47d6
+        with:
+          source_sha: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          full_run: "true"
+          environment_json: '{"ACCEPTANCE_MARKER":"same-runner-action"}'
+          github_token: ${{ github.token }}
+
+      - name: Verify same-runner CLI stack remains available
+        env:
+          ACTION_LIBRARY_REVISION: ${{ steps.cad_ci.outputs.library_revision }}
+          EXPECTED_LIBRARY_REVISION: 4e033fd17e911b3feb92b1a34433b884ca788ab6
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          import cad_ci
+          import cad_ci_tool
+
+          tool_root = Path(os.environ["CAD_CI_TOOL_ROOT"]).resolve()
+          lib_root = Path(os.environ["CAD_CI_LIB_ROOT"]).resolve()
+
+          tool_file = Path(cad_ci_tool.__file__).resolve()
+          lib_file = Path(cad_ci.__file__).resolve()
+          if not tool_file.is_relative_to(tool_root):
+              raise SystemExit(
+                  f"cad_ci_tool is not from action root: {tool_file} vs {tool_root}"
+              )
+          if not lib_file.is_relative_to(lib_root):
+              raise SystemExit(
+                  f"cad_ci is not from pinned library root: {lib_file} vs {lib_root}"
+              )
+
+          if os.environ["ACTION_LIBRARY_REVISION"] != os.environ["EXPECTED_LIBRARY_REVISION"]:
+              raise SystemExit(
+                  "action library output does not match exact released pin"
+              )
+
+          completed = subprocess.run(
+              [
+                  sys.executable,
+                  "-m",
+                  "cad_ci_tool",
+                  "plan",
+                  "--repo",
+                  ".",
+                  "--item",
+                  "workflow-case",
+                  "--json",
+              ],
+              check=True,
+              text=True,
+              stdout=subprocess.PIPE,
+          )
+          rows = json.loads(completed.stdout)
+          if [row["id"] for row in rows] != ["workflow-case"]:
+              raise SystemExit(f"unexpected same-runner plan: {rows}")
+
+          result = Path("build/workflow_case/result.txt")
+          evidence = Path("build/workflow_case/.cad-ci/item.json")
+          if not result.is_file() or not evidence.is_file():
+              raise SystemExit("action-produced build/evidence missing after action")
+          if "ghcr authentication available" not in result.read_text():
+              raise SystemExit("same-runner action did not execute workflow_case")
+          item = json.loads(evidence.read_text())
+          if item.get("status") != "pass":
+              raise SystemExit(f"unexpected item evidence: {item}")
+          PY
+
 
   test:
     needs: [consumer, no_output]
@@ -116,6 +195,9 @@ jobs:
           high_workflow = (root / "reusable-ci.yml").read_text(encoding="utf-8")
           plan_workflow = (root / "reusable-plan.yml").read_text(encoding="utf-8")
           pr_workflow = (root / "reusable-pr.yml").read_text(encoding="utf-8")
+          same_runner_action = (
+              Path("ext/cad-ci/action.yml")
+          ).read_text(encoding="utf-8")
 
           forbidden = (
               "actions/cache/restore",
@@ -178,6 +260,34 @@ jobs:
           ):
               if value in pr_workflow:
                   raise SystemExit(f"forbidden reusable-pr bootstrap: {value}")
+
+          required_action = (
+              "using: composite",
+              "Checkout caller source",
+              "Fetch exact base commit",
+              "library-revision",
+              "repository: brainboxemb/lib.py.cad.ci",
+              "CAD_CI_TOOL_ROOT=$GITHUB_ACTION_PATH",
+              "CAD_CI_LIB_ROOT=$GITHUB_WORKSPACE/.cache/cad-ci-lib-source",
+              "PYTHONPATH=",
+              "--no-deps --no-compile",
+              "docker login ghcr.io",
+              "Run selected CAD CI graph",
+          )
+          for value in required_action:
+              if value not in same_runner_action:
+                  raise SystemExit(f"missing same-runner action contract: {value}")
+          if same_runner_action.count('scripts/reusable_ci.py" run') != 1:
+              raise SystemExit("same-runner action must invoke exactly one CAD-CI run")
+          for value in (
+              "actions/upload-artifact",
+              "actions/download-artifact",
+              "site/build.py",
+              "publish build",
+              "publish pages",
+          ):
+              if value in same_runner_action:
+                  raise SystemExit(f"consumer/publication behavior leaked into action: {value}")
           PY
       - name: Install exact released tool stack
         run: python -m pip install -e ext/cad-ci
